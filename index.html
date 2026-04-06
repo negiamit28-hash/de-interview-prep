@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azure Data Engineering Interview Prep</title>
+<style>
+:root {
+  --bg: #0f172a; --surface: #1e293b; --surface2: #334155;
+  --accent: #3b82f6; --accent2: #8b5cf6; --accent3: #06b6d4;
+  --green: #22c55e; --red: #ef4444; --orange: #f59e0b;
+  --text: #f1f5f9; --text2: #94a3b8; --text3: #64748b;
+  --radius: 12px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+a { color:var(--accent); text-decoration:none; }
+a:hover { text-decoration:underline; }
+
+/* NAV */
+.topbar { background:var(--surface); border-bottom:1px solid var(--surface2); padding:12px 24px; display:flex; align-items:center; gap:16px; position:sticky; top:0; z-index:100; }
+.topbar h1 { font-size:18px; font-weight:700; background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.topbar .nav-links { display:flex; gap:8px; margin-left:auto; }
+.topbar .nav-links button { background:var(--surface2); color:var(--text2); border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-size:13px; transition:all .2s; }
+.topbar .nav-links button:hover, .topbar .nav-links button.active { background:var(--accent); color:#fff; }
+
+/* LAYOUT */
+.container { max-width:1200px; margin:0 auto; padding:24px; }
+.hidden { display:none !important; }
+
+/* HOME */
+.hero { text-align:center; padding:48px 0 32px; }
+.hero h2 { font-size:32px; margin-bottom:12px; }
+.hero p { color:var(--text2); font-size:16px; max-width:600px; margin:0 auto 32px; }
+.stats-bar { display:flex; justify-content:center; gap:24px; margin-bottom:40px; flex-wrap:wrap; }
+.stat-card { background:var(--surface); padding:16px 24px; border-radius:var(--radius); text-align:center; min-width:140px; }
+.stat-card .num { font-size:28px; font-weight:700; color:var(--accent); }
+.stat-card .label { font-size:12px; color:var(--text2); margin-top:4px; }
+
+.topic-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; margin-top:24px; }
+.topic-card { background:var(--surface); border:1px solid var(--surface2); border-radius:var(--radius); padding:24px; cursor:pointer; transition:all .2s; position:relative; overflow:hidden; }
+.topic-card:hover { border-color:var(--accent); transform:translateY(-2px); box-shadow:0 8px 24px rgba(59,130,246,.15); }
+.topic-card .icon { font-size:32px; margin-bottom:12px; }
+.topic-card h3 { font-size:16px; margin-bottom:8px; }
+.topic-card p { font-size:13px; color:var(--text2); line-height:1.5; }
+.topic-card .count { position:absolute; top:16px; right:16px; background:var(--surface2); padding:4px 10px; border-radius:20px; font-size:11px; color:var(--text2); }
+.topic-card .progress-bar { height:3px; background:var(--surface2); border-radius:2px; margin-top:16px; overflow:hidden; }
+.topic-card .progress-bar .fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:2px; transition:width .3s; }
+
+/* MODE SELECTOR */
+.mode-selector { display:flex; gap:12px; justify-content:center; margin:32px 0; flex-wrap:wrap; }
+.mode-btn { background:var(--surface); border:2px solid var(--surface2); border-radius:var(--radius); padding:20px 28px; cursor:pointer; transition:all .2s; text-align:center; min-width:180px; }
+.mode-btn:hover { border-color:var(--accent); }
+.mode-btn.active { border-color:var(--accent); background:rgba(59,130,246,.1); }
+.mode-btn .mode-icon { font-size:28px; margin-bottom:8px; }
+.mode-btn .mode-title { font-size:14px; font-weight:600; }
+.mode-btn .mode-desc { font-size:11px; color:var(--text2); margin-top:4px; }
+
+/* QUIZ */
+.quiz-container { max-width:800px; margin:0 auto; }
+.quiz-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+.quiz-progress { background:var(--surface2); height:8px; border-radius:4px; overflow:hidden; flex:1; margin:0 16px; }
+.quiz-progress .bar { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); transition:width .3s; border-radius:4px; }
+.quiz-counter { font-size:14px; color:var(--text2); min-width:60px; text-align:right; }
+.quiz-score { font-size:14px; color:var(--green); min-width:80px; }
+
+.question-card { background:var(--surface); border-radius:var(--radius); padding:32px; margin-bottom:16px; }
+.question-card .q-topic { font-size:11px; color:var(--accent); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; }
+.question-card .q-difficulty { display:inline-block; padding:2px 8px; border-radius:4px; font-size:11px; margin-left:8px; }
+.q-difficulty.hard { background:rgba(239,68,68,.2); color:var(--red); }
+.q-difficulty.medium { background:rgba(245,158,11,.2); color:var(--orange); }
+.q-difficulty.easy { background:rgba(34,197,94,.2); color:var(--green); }
+.question-card h3 { font-size:18px; line-height:1.5; margin-bottom:24px; }
+.options { display:flex; flex-direction:column; gap:10px; }
+.option { background:var(--surface2); border:2px solid transparent; border-radius:10px; padding:14px 18px; cursor:pointer; transition:all .2s; font-size:14px; line-height:1.5; display:flex; align-items:flex-start; gap:12px; }
+.option:hover:not(.disabled) { border-color:var(--accent); background:rgba(59,130,246,.08); }
+.option .opt-letter { background:var(--bg); width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; flex-shrink:0; }
+.option.correct { border-color:var(--green); background:rgba(34,197,94,.1); }
+.option.correct .opt-letter { background:var(--green); color:#fff; }
+.option.wrong { border-color:var(--red); background:rgba(239,68,68,.1); }
+.option.wrong .opt-letter { background:var(--red); color:#fff; }
+.option.disabled { cursor:default; opacity:.7; }
+.option.disabled.correct { opacity:1; }
+
+.explanation { background:rgba(59,130,246,.08); border-left:3px solid var(--accent); border-radius:0 8px 8px 0; padding:16px 20px; margin-top:20px; font-size:14px; line-height:1.7; color:var(--text2); }
+.explanation strong { color:var(--text); }
+
+.quiz-nav { display:flex; justify-content:space-between; margin-top:20px; }
+.btn { background:var(--accent); color:#fff; border:none; padding:10px 24px; border-radius:8px; cursor:pointer; font-size:14px; font-weight:500; transition:all .2s; }
+.btn:hover { opacity:.9; transform:translateY(-1px); }
+.btn.secondary { background:var(--surface2); color:var(--text2); }
+.btn:disabled { opacity:.4; cursor:not-allowed; }
+
+/* FLASHCARDS */
+.flashcard-container { max-width:700px; margin:0 auto; perspective:1000px; }
+.flashcard-info { text-align:center; margin-bottom:16px; font-size:13px; color:var(--text3); }
+.flashcard { width:100%; min-height:350px; cursor:pointer; position:relative; transition:transform .6s; transform-style:preserve-3d; }
+.flashcard.flipped { transform:rotateY(180deg); }
+.flashcard .front, .flashcard .back { position:absolute; width:100%; min-height:350px; backface-visibility:hidden; border-radius:var(--radius); padding:40px; display:flex; flex-direction:column; justify-content:center; }
+.flashcard .front { background:linear-gradient(135deg,var(--surface),var(--surface2)); border:1px solid var(--surface2); }
+.flashcard .back { background:linear-gradient(135deg,rgba(59,130,246,.1),rgba(139,92,246,.1)); border:1px solid var(--accent); transform:rotateY(180deg); }
+.flashcard .front .fc-topic { font-size:11px; color:var(--accent); text-transform:uppercase; letter-spacing:1px; margin-bottom:16px; }
+.flashcard .front h3 { font-size:20px; line-height:1.5; text-align:center; }
+.flashcard .back p { font-size:15px; line-height:1.8; color:var(--text2); }
+.flashcard .back p strong { color:var(--text); }
+.flashcard .back ul { list-style:none; padding:0; }
+.flashcard .back ul li { padding:6px 0; font-size:14px; color:var(--text2); line-height:1.5; }
+.flashcard .back ul li::before { content:"\2713 "; color:var(--green); font-weight:bold; margin-right:6px; }
+.fc-nav { display:flex; justify-content:center; align-items:center; gap:24px; margin-top:24px; }
+.fc-nav .counter { font-size:14px; color:var(--text2); min-width:80px; text-align:center; }
+.fc-confidence { display:flex; justify-content:center; gap:12px; margin-top:16px; }
+.fc-confidence button { padding:8px 20px; border-radius:8px; border:none; cursor:pointer; font-size:13px; transition:all .2s; }
+.fc-confidence .know { background:rgba(34,197,94,.2); color:var(--green); }
+.fc-confidence .unsure { background:rgba(245,158,11,.2); color:var(--orange); }
+.fc-confidence .dunno { background:rgba(239,68,68,.2); color:var(--red); }
+.fc-confidence button:hover { transform:scale(1.05); }
+
+/* RESULTS */
+.results { text-align:center; padding:48px; }
+.results .score-circle { width:160px; height:160px; border-radius:50%; margin:0 auto 24px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:48px; font-weight:700; }
+.results .score-circle.great { background:rgba(34,197,94,.15); color:var(--green); border:3px solid var(--green); }
+.results .score-circle.ok { background:rgba(245,158,11,.15); color:var(--orange); border:3px solid var(--orange); }
+.results .score-circle.bad { background:rgba(239,68,68,.15); color:var(--red); border:3px solid var(--red); }
+.results .score-circle small { font-size:14px; font-weight:400; }
+.results h3 { font-size:24px; margin-bottom:8px; }
+.results p { color:var(--text2); margin-bottom:24px; }
+.results .breakdown { display:flex; justify-content:center; gap:32px; margin:24px 0; }
+.results .breakdown .item { text-align:center; }
+.results .breakdown .item .val { font-size:24px; font-weight:700; }
+.results .breakdown .item .lbl { font-size:12px; color:var(--text2); }
+
+/* TOPIC FILTER */
+.filter-bar { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:24px; }
+.filter-chip { background:var(--surface); border:1px solid var(--surface2); color:var(--text2); padding:6px 14px; border-radius:20px; font-size:12px; cursor:pointer; transition:all .2s; }
+.filter-chip:hover, .filter-chip.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+
+/* RESPONSIVE */
+@media (max-width:768px) {
+  .container { padding:16px; }
+  .hero h2 { font-size:24px; }
+  .topic-grid { grid-template-columns:1fr; }
+  .question-card { padding:20px; }
+  .flashcard .front, .flashcard .back { padding:24px; }
+  .stats-bar { gap:12px; }
+  .stat-card { min-width:100px; padding:12px 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>DE Interview Prep</h1>
+  <div class="nav-links">
+    <button class="active" onclick="showSection('home')">Home</button>
+    <button onclick="showSection('quiz')">Quiz</button>
+    <button onclick="showSection('flashcards')">Flashcards</button>
+    <button onclick="window.open('study-material.html','_blank')">Study Material</button>
+  </div>
+</div>
+
+<div class="container">
+  <!-- HOME SECTION -->
+  <div id="home-section">
+    <div class="hero">
+      <h2>Azure Data Engineering</h2>
+      <p>Senior-level interview preparation for 10+ YOE candidates. Quiz yourself, review flashcards, or dive into the detailed study material.</p>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-card"><div class="num" id="total-q">0</div><div class="label">Questions</div></div>
+      <div class="stat-card"><div class="num" id="total-fc">0</div><div class="label">Flashcards</div></div>
+      <div class="stat-card"><div class="num">8</div><div class="label">Topics</div></div>
+      <div class="stat-card"><div class="num" id="best-score">-</div><div class="label">Best Score</div></div>
+    </div>
+
+    <h3 style="text-align:center;margin-bottom:8px;">Choose a Mode</h3>
+    <div class="mode-selector">
+      <div class="mode-btn" onclick="startQuiz('all')">
+        <div class="mode-icon">&#128221;</div>
+        <div class="mode-title">Full Quiz</div>
+        <div class="mode-desc">All topics, 20 random questions</div>
+      </div>
+      <div class="mode-btn" onclick="showSection('flashcards');initFlashcards('all')">
+        <div class="mode-icon">&#127183;</div>
+        <div class="mode-title">Flashcards</div>
+        <div class="mode-desc">Flip through key concepts</div>
+      </div>
+      <div class="mode-btn" onclick="startQuiz('weak')">
+        <div class="mode-icon">&#127919;</div>
+        <div class="mode-title">Weak Areas</div>
+        <div class="mode-desc">Focus on topics you missed</div>
+      </div>
+    </div>
+
+    <h3 style="text-align:center;margin:32px 0 16px;">Topics</h3>
+    <div class="topic-grid" id="topic-grid"></div>
+  </div>
+
+  <!-- QUIZ SECTION -->
+  <div id="quiz-section" class="hidden">
+    <div class="quiz-container">
+      <div class="quiz-header">
+        <div class="quiz-score" id="quiz-score">Score: 0/0</div>
+        <div class="quiz-progress"><div class="bar" id="quiz-bar" style="width:0%"></div></div>
+        <div class="quiz-counter" id="quiz-counter">1/20</div>
+      </div>
+      <div id="question-area"></div>
+      <div class="quiz-nav">
+        <button class="btn secondary" onclick="showSection('home')">Exit</button>
+        <button class="btn" id="next-btn" onclick="nextQuestion()" disabled>Next &rarr;</button>
+      </div>
+    </div>
+    <div id="results-area" class="hidden"></div>
+  </div>
+
+  <!-- FLASHCARDS SECTION -->
+  <div id="flashcards-section" class="hidden">
+    <div class="flashcard-container">
+      <div class="filter-bar" id="fc-filter"></div>
+      <div class="flashcard-info">Click the card to flip it</div>
+      <div class="flashcard" id="flashcard" onclick="flipCard()">
+        <div class="front">
+          <div class="fc-topic" id="fc-topic"></div>
+          <h3 id="fc-question"></h3>
+        </div>
+        <div class="back">
+          <p id="fc-answer"></p>
+        </div>
+      </div>
+      <div class="fc-nav">
+        <button class="btn secondary" onclick="prevCard()">&larr; Prev</button>
+        <span class="counter" id="fc-counter">1/10</span>
+        <button class="btn" onclick="nextCard()">Next &rarr;</button>
+      </div>
+      <div class="fc-confidence">
+        <button class="dunno" onclick="rateCard('dunno')">Don't Know</button>
+        <button class="unsure" onclick="rateCard('unsure')">Partially</button>
+        <button class="know" onclick="rateCard('know')">Know It</button>
+      </div>
+      <div style="text-align:center;margin-top:16px">
+        <button class="btn secondary" onclick="showSection('home')">Back to Home</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DATA: QUIZ QUESTIONS
+// ============================================================
+const questions = [
+  // --- AZURE DATA FACTORY ---
+  {topic:"Azure Data Factory",difficulty:"hard",
+   q:"In ADF, what is the key difference between Azure IR auto-resolve behavior for Copy activities vs Data Flows?",
+   opts:["Copy uses factory region, Data Flow uses sink region","Copy picks closest region to sink, Data Flow uses factory region","Both always use the factory region","Both pick the closest region to the source"],
+   answer:1,
+   explain:"Azure IR auto-resolve picks the closest region to the **sink** for Copy activities, but uses the **factory region** for Data Flows. This matters for data residency compliance."},
+  {topic:"Azure Data Factory",difficulty:"hard",
+   q:"What is the recommended CI/CD approach for ADF across dev/test/prod environments?",
+   opts:["Connect all environments to Git and publish independently","Use ARM templates generated from dev, deploy via release pipeline with parameterized linked services","Export/import JSON manually between environments","Use Azure DevOps multi-stage YAML with direct ADF SDK calls"],
+   answer:1,
+   explain:"Only the dev factory connects to Git. ARM templates (from adf_publish or ADFUtilities npm package) are deployed to test/prod via CI/CD pipelines. Pre/post-deployment scripts handle trigger management."},
+  {topic:"Azure Data Factory",difficulty:"medium",
+   q:"What are Data Integration Units (DIUs) in ADF, and what is a common pitfall with the Auto setting?",
+   opts:["DIUs measure storage; Auto underestimates for small files","DIUs measure compute power; Auto optimizes by file count, not size, so large files may be underprovisioned","DIUs measure network bandwidth; Auto always picks the maximum","DIUs are only for Self-hosted IR; Auto disables parallelism"],
+   answer:1,
+   explain:"DIUs measure CPU + memory + network for Azure IR. The Auto setting optimizes based on file count, not file size. For large individual files, you should manually override DIU allocation (range: 4-256)."},
+  {topic:"Azure Data Factory",difficulty:"medium",
+   q:"Which ADF trigger type supports retry policies and dependency chains between windows?",
+   opts:["Schedule trigger","Event-based trigger","Tumbling Window trigger","Custom Event trigger"],
+   answer:2,
+   explain:"Tumbling Window triggers support retry policies, concurrency control, and dependencies between windows (self-referencing or cross-pipeline). This makes them ideal for ordered batch processing."},
+  {topic:"Azure Data Factory",difficulty:"hard",
+   q:"What is the strategic direction for ADF as of 2025-2026?",
+   opts:["ADF will be deprecated in favor of Synapse Pipelines","Microsoft is migrating customers toward Fabric Data Factory with migration tooling","ADF is being merged into Azure DevOps","ADF will only support SSIS workloads going forward"],
+   answer:1,
+   explain:"Microsoft is steering customers from ADF to Fabric Data Factory. ~90% of ADF activities are available in Fabric. Migration assessment tools launched in Jan 2026, and migration tooling in Mar 2026. Key gaps: Azure-SSIS IR and Managed VNet private endpoints are not yet in Fabric."},
+  {topic:"Azure Data Factory",difficulty:"medium",
+   q:"How does ADF Managed Virtual Network prevent data exfiltration?",
+   opts:["It encrypts all data in transit with customer-managed keys","Traffic stays on Microsoft backbone via Private Link; private endpoints map to specific resources, not entire services","It blocks all internet access from the IR","It uses a VPN tunnel to the customer's on-premises network"],
+   answer:1,
+   explain:"Managed VNet uses Private Link so traffic stays on Microsoft's backbone. Managed private endpoints require owner approval on target resources and map to specific resources, preventing unauthorized data movement."},
+  {topic:"Azure Data Factory",difficulty:"medium",
+   q:"What is the purpose of Staged Copy in ADF?",
+   opts:["To create a backup of data before loading","To use Blob/ADLS as interim storage for PolyBase/COPY into Synapse, compression, and port restriction workarounds","To split large files into chunks before processing","To validate data quality before loading"],
+   answer:1,
+   explain:"Staged Copy uses Azure Blob or ADLS Gen2 as interim staging. It's essential for PolyBase/COPY into Synapse, enables compression during on-prem transfers, and works around port restrictions (443 only via Blob staging)."},
+  {topic:"Azure Data Factory",difficulty:"hard",
+   q:"In ADF CI/CD, why is 'Complete' deployment mode dangerous for ARM templates?",
+   opts:["It takes longer to deploy","It only deploys changed resources","It deletes all resources not specified in the template","It requires manual approval for each resource"],
+   answer:2,
+   explain:"ARM deployment in Complete mode deletes any resources in the resource group that are NOT in the template. ADF should always use Incremental mode to avoid accidentally deleting shared resources."},
+
+  // --- DATABRICKS & PYSPARK ---
+  {topic:"Databricks",difficulty:"hard",
+   q:"What is Delta Lake's Liquid Clustering and how does it differ from Z-ordering?",
+   opts:["Liquid Clustering is just a rename of Z-ordering","Liquid Clustering incrementally reorganizes data without full rewrites, while Z-ordering requires OPTIMIZE on the entire table","Liquid Clustering only works on streaming tables","Z-ordering is automatic while Liquid Clustering is manual"],
+   answer:1,
+   explain:"Liquid Clustering (GA in Databricks) incrementally clusters data as it's written, avoiding the expensive full-table OPTIMIZE+ZORDER. It adapts to changing query patterns and is the recommended approach for new Delta tables."},
+  {topic:"Databricks",difficulty:"hard",
+   q:"How does Adaptive Query Execution (AQE) in Spark improve performance?",
+   opts:["It caches all intermediate results in memory","It pre-compiles queries to native code before execution","It dynamically adjusts query plans at runtime based on actual data statistics (coalesce partitions, switch join strategies, handle skew)","It only works with Delta Lake tables"],
+   answer:2,
+   explain:"AQE collects runtime statistics during shuffle stages and can: (1) coalesce small post-shuffle partitions, (2) switch from sort-merge join to broadcast hash join if one side is small, and (3) handle skewed joins by splitting large partitions. Enabled by default since Spark 3.2."},
+  {topic:"Databricks",difficulty:"medium",
+   q:"What is the difference between OPTIMIZE and VACUUM in Delta Lake?",
+   opts:["OPTIMIZE removes deleted files; VACUUM compacts small files","OPTIMIZE compacts small files into larger ones; VACUUM removes files no longer referenced by the table (outside retention period)","They do the same thing","OPTIMIZE is for streaming tables; VACUUM is for batch tables"],
+   answer:1,
+   explain:"OPTIMIZE compacts small files into target-sized files (default ~1GB) and can apply Z-ordering. VACUUM removes data files no longer in the latest table version, respecting the retention period (default 7 days). Run both regularly for table health."},
+  {topic:"Databricks",difficulty:"hard",
+   q:"In PySpark, what causes data skew and how do you handle it?",
+   opts:["Skew is caused by too many partitions; fix by reducing partition count","Skew occurs when data is unevenly distributed across partitions; handle with salting, AQE skew join optimization, or broadcast joins","Skew only affects read operations; write operations are immune","Skew is a Delta Lake-specific problem solved by OPTIMIZE"],
+   answer:1,
+   explain:"Data skew happens when a few partitions have disproportionately more data (e.g., hot keys in joins/aggregations). Solutions: (1) AQE skew join hints, (2) key salting (add random prefix, join on salted key, then aggregate), (3) broadcast the smaller table, (4) isolate and handle hot keys separately."},
+  {topic:"Databricks",difficulty:"medium",
+   q:"What is Unity Catalog in Databricks?",
+   opts:["A data visualization tool","A centralized governance layer for data and AI assets with access control, lineage, and audit across all workspaces","A replacement for Delta Lake","A cluster management interface"],
+   answer:1,
+   explain:"Unity Catalog provides a 3-level namespace (catalog.schema.table), centralized access control (GRANT/REVOKE), automatic data lineage tracking, and audit logs. It works across all Databricks workspaces in an account."},
+  {topic:"Databricks",difficulty:"medium",
+   q:"What is the Photon engine in Databricks?",
+   opts:["A Python-based query optimizer","A C++ vectorized query engine that accelerates Spark SQL and Delta Lake operations","A new file format replacing Parquet","A cluster auto-scaling algorithm"],
+   answer:1,
+   explain:"Photon is a C++ native vectorized execution engine that replaces parts of the JVM-based Spark engine. It dramatically accelerates SQL queries, joins, and aggregations on Delta Lake tables, especially on Photon-enabled clusters."},
+  {topic:"Databricks",difficulty:"hard",
+   q:"When should you use a Databricks Job Cluster vs an All-Purpose Cluster?",
+   opts:["Job clusters for interactive development, all-purpose for production","Job clusters are auto-created for a specific job run and terminated after; all-purpose clusters persist for interactive/shared workloads","They are identical in behavior and cost","Job clusters are cheaper but slower"],
+   answer:1,
+   explain:"Job clusters are spun up per job run and terminated after completion -- ideal for production (cost-efficient, isolated). All-purpose clusters stay running for interactive development, notebooks, and collaboration. Job clusters have lower DBU rates."},
+
+  // --- SQL ---
+  {topic:"SQL",difficulty:"medium",
+   q:"What is the difference between ROW_NUMBER(), RANK(), and DENSE_RANK()?",
+   opts:["They all produce identical results","ROW_NUMBER gives unique sequential numbers; RANK skips numbers after ties; DENSE_RANK doesn't skip","ROW_NUMBER handles ties; RANK and DENSE_RANK don't","They differ only in NULL handling"],
+   answer:1,
+   explain:"For values [10,20,20,30]: ROW_NUMBER()=1,2,3,4 (arbitrary tiebreak). RANK()=1,2,2,4 (skips 3). DENSE_RANK()=1,2,2,3 (no gap). Choose based on whether you need unique numbers or gap/no-gap ranking."},
+  {topic:"SQL",difficulty:"hard",
+   q:"In Azure Synapse dedicated SQL pool, which distribution strategy should you use for a large fact table?",
+   opts:["Round-robin for even distribution","Hash distribution on the most common join column to minimize data movement","Replicate to put a copy on every distribution","Random distribution for best parallelism"],
+   answer:1,
+   explain:"Hash distribution on the primary join key (e.g., customer_id) co-locates rows across distributions, minimizing expensive data movement during joins. Round-robin is for staging; replicate is for small dimension tables."},
+  {topic:"SQL",difficulty:"hard",
+   q:"What are the SQL transaction isolation levels and when would you use SNAPSHOT?",
+   opts:["READ UNCOMMITTED, READ COMMITTED, REPEATABLE READ, SERIALIZABLE, SNAPSHOT. SNAPSHOT uses row versioning for consistent reads without blocking writers","There are only 3 isolation levels in SQL","SNAPSHOT is the default in all databases","SNAPSHOT locks all rows during a transaction"],
+   answer:0,
+   explain:"SNAPSHOT isolation uses row versioning (tempdb) to provide a consistent view of data as of the transaction start -- readers don't block writers and vice versa. Ideal for read-heavy OLTP workloads where you need consistency without lock contention."},
+  {topic:"SQL",difficulty:"medium",
+   q:"What is a recursive CTE and when would you use it?",
+   opts:["A CTE that calls itself to traverse hierarchical data like org charts, BOMs, or graph structures","A CTE that runs multiple times for performance optimization","A CTE that automatically caches results","A CTE that joins with itself using CROSS APPLY"],
+   answer:0,
+   explain:"Recursive CTEs have an anchor member (base case) and a recursive member (references the CTE itself). Use for hierarchical traversal (org charts, category trees, bill of materials), graph path finding, and generating series."},
+  {topic:"SQL",difficulty:"hard",
+   q:"How does the MERGE statement work and what is a common pitfall?",
+   opts:["MERGE only handles INSERT operations","MERGE combines INSERT/UPDATE/DELETE in one statement; a common pitfall is non-deterministic matching when source has duplicate keys","MERGE is slower than separate INSERT/UPDATE/DELETE","MERGE doesn't support OUTPUT clause"],
+   answer:1,
+   explain:"MERGE matches source to target using ON clause, then executes WHEN MATCHED (UPDATE/DELETE), WHEN NOT MATCHED BY TARGET (INSERT), WHEN NOT MATCHED BY SOURCE (DELETE). If the source has duplicate join keys, behavior is non-deterministic -- always deduplicate the source first."},
+  {topic:"SQL",difficulty:"medium",
+   q:"What is a columnstore index and when should you use it?",
+   opts:["A regular B-tree index stored by column","A column-oriented index that compresses data and accelerates analytical queries with large scans and aggregations","An index only for VARCHAR columns","A clustered index variant for primary keys"],
+   answer:1,
+   explain:"Columnstore indexes store data column-by-column with heavy compression (10x). They excel at analytical queries scanning millions of rows with aggregations. Use clustered columnstore for data warehouse fact tables; nonclustered columnstore for HTAP workloads on OLTP tables."},
+
+  // --- DATA MODELING ---
+  {topic:"Data Modeling",difficulty:"medium",
+   q:"What are the key differences between Star Schema and Snowflake Schema?",
+   opts:["Star schema normalizes dimensions; snowflake denormalizes them","Star schema has denormalized dimensions (fewer joins, faster queries); snowflake normalizes dimensions into sub-dimensions (less storage, more joins)","They are identical except for naming","Star schema doesn't use fact tables"],
+   answer:1,
+   explain:"Star schema: fact table surrounded by denormalized dimension tables (simple, fast queries, more storage). Snowflake: dimensions normalized into multiple related tables (less redundancy, more complex joins). Star schema is generally preferred in modern cloud warehouses due to cheap storage and query optimization."},
+  {topic:"Data Modeling",difficulty:"hard",
+   q:"Explain SCD Type 2 and how you implement it.",
+   opts:["Overwrite the old value with the new one","Add a new row for each change with effective_date, end_date, and is_current flag; use surrogate keys to maintain history","Create a separate history table","Store changes as JSON in a single column"],
+   answer:1,
+   explain:"SCD Type 2 preserves full history: when an attribute changes, mark the current row (is_current=false, end_date=change_date) and insert a new row (is_current=true, end_date=9999-12-31). Requires surrogate keys since the natural key now has multiple rows."},
+  {topic:"Data Modeling",difficulty:"hard",
+   q:"What is the Medallion Architecture (Bronze/Silver/Gold)?",
+   opts:["A database normalization technique","A data lakehouse pattern: Bronze=raw ingestion, Silver=cleaned/conformed, Gold=business-ready aggregations","A backup strategy with 3 copies","A security model with 3 access levels"],
+   answer:1,
+   explain:"Bronze: raw data as-is from source (append-only, schema-on-read). Silver: cleaned, deduplicated, standardized, schema-enforced. Gold: business-ready aggregations, star schemas, feature tables. Each layer adds quality and structure. This is the de facto standard in Databricks/lakehouse architectures."},
+  {topic:"Data Modeling",difficulty:"hard",
+   q:"What is Data Vault 2.0 and when would you use it over Kimball?",
+   opts:["Data Vault is a simpler version of star schema","Data Vault uses Hubs (business keys), Links (relationships), and Satellites (attributes+history); ideal for agile, audit-heavy environments with many source systems","Data Vault eliminates the need for dimensional modeling","Data Vault is only for NoSQL databases"],
+   answer:1,
+   explain:"Data Vault 2.0: Hubs store business keys, Links capture relationships, Satellites hold descriptive attributes with full history. Advantages: insert-only (no updates), parallel loading, full audit trail, handles source system changes gracefully. Use when you have many source systems, regulatory audit requirements, or need agile development."},
+  {topic:"Data Modeling",difficulty:"medium",
+   q:"What is a degenerate dimension?",
+   opts:["A dimension that has been deleted","A dimension key stored directly in the fact table without a separate dimension table (e.g., invoice number, order number)","A dimension with only one attribute","A slowly changing dimension"],
+   answer:1,
+   explain:"Degenerate dimensions are transaction identifiers (invoice #, order #, confirmation #) stored directly in the fact table. They have no meaningful attributes to warrant a separate dimension table but are useful for grouping/filtering fact rows."},
+
+  // --- ADLS ---
+  {topic:"Azure Data Lake Storage",difficulty:"medium",
+   q:"What distinguishes ADLS Gen2 from regular Azure Blob Storage?",
+   opts:["ADLS Gen2 is a completely separate service","ADLS Gen2 adds a hierarchical namespace on top of Blob Storage, enabling directory-level operations, POSIX ACLs, and better analytics performance","ADLS Gen2 only supports unstructured data","ADLS Gen2 is more expensive with no performance benefits"],
+   answer:1,
+   explain:"ADLS Gen2 = Blob Storage + Hierarchical Namespace. This enables atomic directory operations (rename/delete), POSIX-style ACLs for fine-grained security, and significantly better performance for analytics workloads (Spark, Synapse, ADF)."},
+  {topic:"Azure Data Lake Storage",difficulty:"medium",
+   q:"What is the recommended file size for optimal analytics performance on ADLS Gen2?",
+   opts:["As small as possible (1KB-1MB)","256MB to 1GB per file","Exactly 128MB","File size doesn't matter"],
+   answer:1,
+   explain:"Target 256MB-1GB per file. Too many small files cause overhead (listing, opening connections). Too-large files reduce parallelism. Use ADF or Spark to compact small files. For Parquet/Delta, aim for ~256MB-1GB per file with row group sizes of 128MB."},
+  {topic:"Azure Data Lake Storage",difficulty:"hard",
+   q:"How do RBAC and ACLs interact in ADLS Gen2 security?",
+   opts:["RBAC and ACLs are mutually exclusive","RBAC is evaluated first; if it grants access, ACLs are skipped. ACLs provide fine-grained path-level control when RBAC is too broad","ACLs always override RBAC","They serve identical purposes"],
+   answer:1,
+   explain:"RBAC roles (Storage Blob Data Owner/Contributor/Reader) apply at container/account level and take precedence. If RBAC grants access, ACLs aren't checked. For fine-grained control (specific folders/files), use ACLs with more restrictive RBAC. Best practice: RBAC for service principals, ACLs for user-level folder access."},
+
+  // --- STREAM PROCESSING ---
+  {topic:"Stream Processing",difficulty:"hard",
+   q:"What is the difference between Lambda and Kappa architecture?",
+   opts:["Lambda uses only batch processing; Kappa uses only stream processing","Lambda has separate batch + speed layers (complex, two codebases); Kappa uses a single stream processing layer for everything (simpler, unified)","They are the same architecture with different names","Lambda is newer and preferred over Kappa"],
+   answer:1,
+   explain:"Lambda: batch layer (accurate, slow) + speed layer (approximate, fast) + serving layer. Two codebases to maintain. Kappa: single stream processing layer replays the event log for both real-time and reprocessing. Simpler but requires a capable streaming system (Kafka + Spark Structured Streaming / Flink)."},
+  {topic:"Stream Processing",difficulty:"medium",
+   q:"What are the windowing types in Azure Stream Analytics?",
+   opts:["Only fixed-size windows","Tumbling (fixed, non-overlapping), Hopping (fixed, overlapping), Sliding (triggered by events), Session (activity-based with timeout gap)","Only tumbling and session","Windows are not supported in Stream Analytics"],
+   answer:1,
+   explain:"Tumbling: fixed-size, no overlap (e.g., every 5 min). Hopping: fixed-size, overlapping by hop interval. Sliding: triggered only when events enter/leave the window. Session: groups events with activity gaps less than the timeout -- great for user session analysis."},
+  {topic:"Stream Processing",difficulty:"hard",
+   q:"How does Spark Structured Streaming handle late-arriving data?",
+   opts:["It discards all late data","Using watermarks -- a threshold that defines how late data can arrive and still be included in window aggregations; data beyond the watermark is dropped","It reprocesses the entire stream from the beginning","It stores late data in a separate error table"],
+   answer:1,
+   explain:"Watermarks = `withWatermark('timestamp', '10 minutes')` tells Spark the max expected lateness. State for windows is maintained until watermark passes. Late data within the threshold updates results; beyond it, data is dropped and state is cleaned up. Essential for bounded state in unbounded streams."},
+  {topic:"Stream Processing",difficulty:"medium",
+   q:"What is Change Data Capture (CDC) and how is it used in streaming?",
+   opts:["CDC captures full table snapshots on a schedule","CDC tracks row-level changes (INSERT/UPDATE/DELETE) from source databases and streams them as events for real-time replication","CDC only works with NoSQL databases","CDC is a batch-only pattern"],
+   answer:1,
+   explain:"CDC reads database transaction logs to capture changes without impacting source performance. Tools: Debezium (open source, Kafka Connect), Azure SQL CDC, Oracle GoldenGate. Enables real-time data replication, event-driven architectures, and maintaining synchronized data lakes."},
+
+  // --- PYTHON ---
+  {topic:"Python",difficulty:"medium",
+   q:"How would you process a 50GB CSV file in Python without loading it into memory?",
+   opts:["Use pandas read_csv() which handles large files automatically","Use a generator that yields chunks or lines, processing each incrementally","Convert it to Excel first","Load it into SQLite, then query"],
+   answer:1,
+   explain:"Use generators: `pd.read_csv('file.csv', chunksize=100000)` returns an iterator of DataFrames. Or use a raw generator: `for line in open('file.csv'):`. Also consider Polars streaming mode or PyArrow dataset for columnar access with predicate pushdown."},
+  {topic:"Python",difficulty:"hard",
+   q:"What is the GIL and how does Python 3.13+ change things?",
+   opts:["GIL prevents all concurrency; Python 3.13 removes it entirely","GIL is a mutex allowing only one thread to execute Python bytecode at a time; Python 3.13+ introduces an optional free-threaded build (no GIL) via PEP 703","GIL only affects multiprocessing, not threading","GIL was removed in Python 3.10"],
+   answer:1,
+   explain:"The GIL protects reference counting but prevents true CPU parallelism in threads. GIL is released during I/O waits (so threading helps for I/O-bound work). Python 3.13 introduces an experimental no-GIL build. For data engineering: use multiprocessing for CPU-heavy work, asyncio/threading for I/O."},
+  {topic:"Python",difficulty:"medium",
+   q:"When should you use Polars over Pandas?",
+   opts:["Always -- Polars is strictly better","When you need lazy evaluation, better performance on large datasets, and native multithreading; Pandas for ecosystem compatibility and smaller datasets","Only for streaming data","Only when using Rust-based tools"],
+   answer:1,
+   explain:"Polars: 5-10x faster than Pandas, lazy evaluation with query optimization, native multithreading, no index confusion, streaming mode for out-of-memory data. Pandas: larger ecosystem, better library compatibility (sklearn, plotly), Arrow backend in 2.0+ narrows the gap. Choose based on data size and ecosystem needs."},
+  {topic:"Python",difficulty:"hard",
+   q:"What is the difference between `@staticmethod`, `@classmethod`, and a regular method in Python?",
+   opts:["They are all identical in behavior","Regular methods get `self` (instance); classmethods get `cls` (class) and can be called on the class; staticmethods get neither and are just namespaced functions","Staticmethods can access instance state; classmethods cannot","Classmethods are slower than regular methods"],
+   answer:1,
+   explain:"Regular method: `def foo(self)` -- bound to instance. Classmethod: `@classmethod def foo(cls)` -- bound to class, used for alternative constructors. Staticmethod: `@staticmethod def foo()` -- no binding, just a function in the class namespace. All three are implemented via the descriptor protocol."},
+  {topic:"Python",difficulty:"hard",
+   q:"What design patterns are most useful for building data pipelines in Python?",
+   opts:["Only the Singleton pattern","Factory (source/sink creation), Strategy (interchangeable transforms), Template Method (base pipeline with abstract extract/transform/load), Observer (event-driven triggers)","Patterns are not applicable to data engineering","Only the MVC pattern"],
+   answer:1,
+   explain:"Factory: create extractors/loaders based on config. Strategy: swap transform logic (full vs incremental). Template Method: base Pipeline class with abstract methods for each stage. Observer: trigger pipelines on file arrival or event. Also important: idempotent loads (MERGE/upsert), metadata-driven ingestion from config files."},
+
+  // --- PYSPARK ---
+  {topic:"PySpark",difficulty:"hard",
+   q:"What is the Catalyst Optimizer in Spark?",
+   opts:["A memory management system","Spark's query optimization framework that applies rule-based and cost-based optimization to logical and physical query plans before execution","A shuffle algorithm","A data serialization format"],
+   answer:1,
+   explain:"Catalyst: (1) parses SQL/DataFrame API into unresolved logical plan, (2) analyzes and resolves references, (3) applies rule-based optimizations (predicate pushdown, column pruning, constant folding), (4) generates multiple physical plans and picks the cheapest using cost-based optimization. This is why DataFrame API and SQL have the same performance."},
+  {topic:"PySpark",difficulty:"medium",
+   q:"What is the difference between narrow and wide transformations in Spark?",
+   opts:["Narrow transformations process more data than wide ones","Narrow transformations (map, filter) don't require shuffle; wide transformations (groupBy, join, repartition) require data movement across partitions (shuffle)","They refer to column count, not data movement","Wide transformations are always faster"],
+   answer:1,
+   explain:"Narrow: each input partition contributes to at most one output partition (no shuffle). Examples: map, filter, union. Wide: input partitions contribute to multiple output partitions (requires shuffle over network). Examples: groupBy, join, repartition, distinct. Minimize wide transformations for performance."},
+  {topic:"PySpark",difficulty:"hard",
+   q:"How do you optimize a PySpark join when one table is small enough to fit in driver memory?",
+   opts:["Use sort-merge join for all cases","Use broadcast join -- Spark sends the small table to all executors, eliminating the shuffle on the large table","Convert both tables to Pandas first","Use a subquery instead of a join"],
+   answer:1,
+   explain:"Broadcast join: `df_large.join(broadcast(df_small), 'key')`. Spark serializes the small DataFrame and sends it to every executor. This eliminates the expensive shuffle of the large table. Default broadcast threshold is 10MB (`spark.sql.autoBroadcastJoinThreshold`). AQE can also auto-switch to broadcast at runtime."},
+];
+
+// ============================================================
+// DATA: FLASHCARDS
+// ============================================================
+const flashcards = [
+  {topic:"Azure Data Factory",q:"What are the 3 types of Integration Runtime?",a:"<strong>Azure IR</strong> (serverless cloud), <strong>Self-hosted IR</strong> (on-prem/private network, up to 8 nodes), <strong>Azure-SSIS IR</strong> (managed VM cluster for SSIS packages). IR is the compute backbone of ADF."},
+  {topic:"Azure Data Factory",q:"How do you implement incremental loads in ADF?",a:"Use <strong>Tumbling Window triggers</strong> with watermark columns, or a <strong>Lookup activity</strong> to get the last load timestamp from a control table, then filter the source query. Also consider Change Data Capture for real-time incremental loads."},
+  {topic:"Azure Data Factory",q:"ADF CI/CD: What is the adf_publish branch?",a:"Auto-generated branch containing ARM templates when you click Publish. Alternative: use <strong>@microsoft/azure-data-factory-utilities</strong> npm package in CI to generate templates without manual publish. Only dev connects to Git; test/prod deploy via ARM templates."},
+  {topic:"Azure Data Factory",q:"What is TTL for Managed VNet IR?",a:"Time-to-Live keeps compute warm between activities in Managed VNet (cold start takes several minutes). Critical for ForEach loops. Configurable compute size. Billing continues during TTL window."},
+  {topic:"Azure Data Factory",q:"ADF vs Fabric Data Factory?",a:"~90% activity overlap. Fabric eliminates datasets (inline), uses capacity-based pricing (no per-activity charge), has save-and-run model (no Publish step), adds Copilot AI. Gaps: no Azure-SSIS IR or Managed VNet private endpoints in Fabric yet."},
+  {topic:"Databricks",q:"What is Delta Lake?",a:"Open-source storage layer on top of Parquet providing <strong>ACID transactions</strong>, <strong>time travel</strong> (query previous versions), <strong>schema enforcement/evolution</strong>, <strong>OPTIMIZE</strong> (file compaction), <strong>VACUUM</strong> (remove old files), and <strong>Z-ordering/Liquid Clustering</strong>."},
+  {topic:"Databricks",q:"Explain Unity Catalog's 3-level namespace",a:"<strong>Catalog.Schema.Table</strong>. Catalogs group schemas (like databases). Provides centralized access control (GRANT/REVOKE), automatic lineage tracking, audit logs, and works across all workspaces in an account."},
+  {topic:"Databricks",q:"What is Adaptive Query Execution (AQE)?",a:"Runtime query optimization (Spark 3.2+ default): <strong>coalesces small partitions</strong> after shuffle, <strong>switches join strategies</strong> (e.g., sort-merge to broadcast) based on actual data sizes, and <strong>handles skewed joins</strong> by splitting large partitions."},
+  {topic:"Databricks",q:"Job Cluster vs All-Purpose Cluster?",a:"<strong>Job Cluster</strong>: created per job run, terminated after -- cost-efficient, isolated, lower DBU rate. <strong>All-Purpose</strong>: persists for interactive development, notebooks, collaboration. Use Job for production, All-Purpose for development."},
+  {topic:"Databricks",q:"What is Photon Engine?",a:"C++ native <strong>vectorized execution engine</strong> replacing parts of the JVM-based Spark engine. Dramatically accelerates SQL, joins, aggregations on Delta tables. Available on Photon-enabled cluster types."},
+  {topic:"SQL",q:"Window Functions: ROW_NUMBER vs RANK vs DENSE_RANK",a:"For values [10,20,20,30]:<br><strong>ROW_NUMBER</strong>: 1,2,3,4 (unique, arbitrary tiebreak)<br><strong>RANK</strong>: 1,2,2,4 (ties get same rank, gaps after)<br><strong>DENSE_RANK</strong>: 1,2,2,3 (no gaps)"},
+  {topic:"SQL",q:"Synapse Distribution Strategies",a:"<strong>Hash</strong>: distribute on join column -- fact tables. <strong>Round-robin</strong>: even spread -- staging tables. <strong>Replicate</strong>: full copy on every node -- small dimension tables (<2GB). Hash on the most common join key minimizes data movement."},
+  {topic:"SQL",q:"What is a MERGE statement?",a:"Combines INSERT/UPDATE/DELETE in one statement. Matches source to target using ON clause. <strong>WHEN MATCHED</strong> (update/delete), <strong>WHEN NOT MATCHED BY TARGET</strong> (insert), <strong>WHEN NOT MATCHED BY SOURCE</strong> (delete). <strong>Pitfall</strong>: deduplicate source first to avoid non-deterministic results."},
+  {topic:"SQL",q:"Transaction Isolation Levels",a:"<strong>READ UNCOMMITTED</strong> (dirty reads) → <strong>READ COMMITTED</strong> (default, no dirty reads) → <strong>REPEATABLE READ</strong> (no phantom reads within row) → <strong>SERIALIZABLE</strong> (full isolation) → <strong>SNAPSHOT</strong> (row versioning, readers don't block writers)."},
+  {topic:"Data Modeling",q:"Star Schema vs Snowflake Schema",a:"<strong>Star</strong>: denormalized dimensions, fewer joins, simpler queries, more storage. <strong>Snowflake</strong>: normalized dimensions, less redundancy, more joins. Star is preferred in modern cloud warehouses (storage is cheap, join simplicity matters)."},
+  {topic:"Data Modeling",q:"SCD Types 1, 2, and 3",a:"<strong>Type 1</strong>: Overwrite old value (no history). <strong>Type 2</strong>: Add new row with effective dates + is_current flag (full history, needs surrogate keys). <strong>Type 3</strong>: Add column for previous value (limited history, only one prior value)."},
+  {topic:"Data Modeling",q:"What is Data Vault 2.0?",a:"<strong>Hubs</strong> (business keys), <strong>Links</strong> (relationships), <strong>Satellites</strong> (descriptive attributes + history). Insert-only, parallel-loadable, full audit trail. Best for environments with many source systems and regulatory requirements."},
+  {topic:"Data Modeling",q:"Medallion Architecture",a:"<strong>Bronze</strong>: raw ingestion (append-only, schema-on-read). <strong>Silver</strong>: cleaned, deduplicated, standardized. <strong>Gold</strong>: business-ready aggregations, star schemas. Each layer increases quality and structure."},
+  {topic:"Azure Data Lake Storage",q:"ADLS Gen2 vs Blob Storage",a:"ADLS Gen2 = Blob Storage + <strong>Hierarchical Namespace</strong>. Enables atomic directory ops, POSIX ACLs, better analytics performance. Same pricing model. Always enable HNS for analytics workloads."},
+  {topic:"Azure Data Lake Storage",q:"ADLS Security: RBAC vs ACLs",a:"<strong>RBAC</strong>: container/account-level (evaluated first, if granted, ACLs skipped). <strong>ACLs</strong>: path-level, POSIX-style (default + access ACLs). Best practice: RBAC for service principals, ACLs for fine-grained user-level folder access."},
+  {topic:"Azure Data Lake Storage",q:"Optimal File Size on ADLS Gen2",a:"Target <strong>256MB-1GB</strong> per file. Too many small files = listing/connection overhead. Too large = poor parallelism. Compact small files with Spark/ADF. Parquet row groups ~128MB."},
+  {topic:"Stream Processing",q:"Lambda vs Kappa Architecture",a:"<strong>Lambda</strong>: batch layer + speed layer + serving layer (accurate + fast, but 2 codebases). <strong>Kappa</strong>: single stream processing layer, replays event log for reprocessing (simpler, needs capable streaming system like Kafka + Spark/Flink)."},
+  {topic:"Stream Processing",q:"Windowing Types in Stream Processing",a:"<strong>Tumbling</strong>: fixed, non-overlapping. <strong>Hopping</strong>: fixed, overlapping by hop interval. <strong>Sliding</strong>: triggered by events entering/leaving. <strong>Session</strong>: groups events within a timeout gap. Choose based on your aggregation semantics."},
+  {topic:"Stream Processing",q:"What are Watermarks in Structured Streaming?",a:"Threshold for max expected lateness: <code>withWatermark('ts', '10 min')</code>. Late data within threshold updates results. Beyond threshold: dropped, state cleaned. Essential for bounded state in unbounded streams."},
+  {topic:"Stream Processing",q:"What is CDC (Change Data Capture)?",a:"Reads database <strong>transaction logs</strong> to capture INSERT/UPDATE/DELETE without impacting source. Tools: <strong>Debezium</strong> (open source), Azure SQL CDC, Oracle GoldenGate. Enables real-time replication and event-driven architectures."},
+  {topic:"Python",q:"Generators for Large Data Processing",a:"Use <code>yield</code> for lazy evaluation. Chain generators for memory-efficient pipelines. <code>pd.read_csv(chunksize=N)</code> returns iterator. <code>yield from</code> for sub-generators. Never materialize full dataset in memory."},
+  {topic:"Python",q:"Threading vs Multiprocessing vs Asyncio",a:"<strong>Threading</strong>: I/O-bound (GIL released during I/O). <strong>Multiprocessing</strong>: CPU-bound (separate processes, no GIL). <strong>Asyncio</strong>: high-concurrency I/O (single-threaded event loop, thousands of connections). Python 3.13+ offers optional no-GIL build."},
+  {topic:"Python",q:"Polars vs Pandas",a:"<strong>Polars</strong>: Rust-based, 5-10x faster, lazy evaluation, native multithreading, no index, streaming mode. <strong>Pandas</strong>: larger ecosystem, Arrow backend in 2.0+, better library compatibility. Use Polars for large data, Pandas for ecosystem."},
+  {topic:"Python",q:"Key Testing Libraries for Data Engineering",a:"<strong>pytest</strong> + fixtures (scope, yield, conftest). <strong>moto</strong> (mock AWS). <strong>responses</strong> (mock HTTP). <strong>freezegun</strong> (mock time). <strong>pandera</strong> (DataFrame schema validation). <strong>great_expectations</strong> (data quality). <strong>factory_boy</strong> (test data)."},
+  {topic:"PySpark",q:"Catalyst Optimizer Pipeline",a:"(1) Parse → unresolved plan. (2) Analyze → resolve references. (3) <strong>Rule-based optimization</strong>: predicate pushdown, column pruning, constant folding. (4) <strong>Cost-based optimization</strong>: generate physical plans, pick cheapest. This is why DataFrame API = SQL performance."},
+  {topic:"PySpark",q:"Narrow vs Wide Transformations",a:"<strong>Narrow</strong> (no shuffle): map, filter, union. Each partition → one output partition. <strong>Wide</strong> (shuffle required): groupBy, join, repartition. Partitions → multiple outputs. Minimize wide transformations for performance."},
+  {topic:"PySpark",q:"Broadcast Join Optimization",a:"<code>df.join(broadcast(small_df), 'key')</code>. Sends small table to all executors, eliminating large table shuffle. Default threshold: 10MB (<code>autoBroadcastJoinThreshold</code>). AQE can auto-switch at runtime."},
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let currentView = 'home';
+let quizState = { questions:[], current:0, score:0, answered:0, answers:{} };
+let fcState = { cards:[], current:0, filter:'all', ratings:{} };
+
+const topics = [
+  {id:'Azure Data Factory',icon:'&#9881;',desc:'Pipelines, IR, CI/CD, performance tuning, Managed VNet, Fabric migration'},
+  {id:'Databricks',icon:'&#9889;',desc:'Delta Lake, Unity Catalog, AQE, Photon, clusters, structured streaming'},
+  {id:'PySpark',icon:'&#128293;',desc:'Catalyst optimizer, partitioning, broadcast joins, shuffle, skew handling'},
+  {id:'SQL',icon:'&#128450;',desc:'Window functions, isolation levels, MERGE, Synapse distributions, columnstore'},
+  {id:'Data Modeling',icon:'&#128202;',desc:'Star/snowflake schema, SCD types, Data Vault, medallion architecture'},
+  {id:'Azure Data Lake Storage',icon:'&#128193;',desc:'ADLS Gen2, HNS, RBAC/ACLs, storage tiers, file sizing, partitioning'},
+  {id:'Stream Processing',icon:'&#127754;',desc:'Lambda/Kappa, windowing, watermarks, CDC, Event Hubs, Structured Streaming'},
+  {id:'Python',icon:'&#128013;',desc:'Generators, concurrency/GIL, Polars/Pandas, testing, design patterns, uv'},
+];
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+  document.getElementById('total-q').textContent = questions.length;
+  document.getElementById('total-fc').textContent = flashcards.length;
+  const best = localStorage.getItem('de-best-score');
+  if (best) document.getElementById('best-score').textContent = best + '%';
+  renderTopicGrid();
+  renderFcFilter();
+}
+
+function renderTopicGrid() {
+  const grid = document.getElementById('topic-grid');
+  grid.innerHTML = topics.map(t => {
+    const qCount = questions.filter(q => q.topic === t.id).length;
+    const fcCount = flashcards.filter(f => f.topic === t.id).length;
+    const answered = Object.keys(quizState.answers).filter(k => {
+      const idx = parseInt(k);
+      return questions[idx] && questions[idx].topic === t.id;
+    }).length;
+    const pct = qCount > 0 ? Math.round((answered/qCount)*100) : 0;
+    return `<div class="topic-card" onclick="startQuiz('${t.id}')">
+      <div class="icon">${t.icon}</div>
+      <div class="count">${qCount}Q / ${fcCount}FC</div>
+      <h3>${t.id}</h3>
+      <p>${t.desc}</p>
+      <div class="progress-bar"><div class="fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showSection(name) {
+  currentView = name;
+  ['home','quiz','flashcards'].forEach(s => {
+    document.getElementById(s+'-section').classList.toggle('hidden', s !== name);
+  });
+  document.querySelectorAll('.nav-links button').forEach(b => {
+    b.classList.toggle('active', b.textContent.toLowerCase().includes(name));
+  });
+  if (name === 'flashcards' && fcState.cards.length === 0) initFlashcards('all');
+}
+
+// ============================================================
+// QUIZ ENGINE
+// ============================================================
+function startQuiz(topicOrMode) {
+  let pool;
+  if (topicOrMode === 'all') {
+    pool = [...questions];
+  } else if (topicOrMode === 'weak') {
+    const weakTopics = getWeakTopics();
+    pool = weakTopics.length > 0
+      ? questions.filter(q => weakTopics.includes(q.topic))
+      : [...questions];
+  } else {
+    pool = questions.filter(q => q.topic === topicOrMode);
+  }
+  // Shuffle and take up to 20
+  pool = shuffle(pool).slice(0, 20);
+  quizState = { questions: pool, current: 0, score: 0, answered: 0, answers: {} };
+  showSection('quiz');
+  document.getElementById('results-area').classList.add('hidden');
+  document.querySelector('.quiz-container').classList.remove('hidden');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = quizState.questions[quizState.current];
+  const total = quizState.questions.length;
+  document.getElementById('quiz-counter').textContent = `${quizState.current+1}/${total}`;
+  document.getElementById('quiz-bar').style.width = `${((quizState.current)/total)*100}%`;
+  document.getElementById('quiz-score').textContent = `Score: ${quizState.score}/${quizState.answered}`;
+  document.getElementById('next-btn').disabled = !quizState.answers.hasOwnProperty(quizState.current);
+  document.getElementById('next-btn').textContent = quizState.current === total-1 ? 'Finish' : 'Next \u2192';
+
+  const letters = ['A','B','C','D'];
+  const answered = quizState.answers.hasOwnProperty(quizState.current);
+  const userAnswer = quizState.answers[quizState.current];
+
+  let html = `<div class="question-card">
+    <div class="q-topic">${q.topic} <span class="q-difficulty ${q.difficulty}">${q.difficulty}</span></div>
+    <h3>${q.q}</h3>
+    <div class="options">`;
+  q.opts.forEach((opt, i) => {
+    let cls = 'option';
+    if (answered) {
+      cls += ' disabled';
+      if (i === q.answer) cls += ' correct';
+      else if (i === userAnswer && i !== q.answer) cls += ' wrong';
+    }
+    html += `<div class="${cls}" ${answered?'':`onclick="selectAnswer(${i})"`}>
+      <div class="opt-letter">${letters[i]}</div><div>${opt}</div></div>`;
+  });
+  html += `</div>`;
+  if (answered) {
+    html += `<div class="explanation"><strong>${userAnswer===q.answer?'Correct!':'Incorrect.'}</strong> ${q.explain}</div>`;
+  }
+  html += `</div>`;
+  document.getElementById('question-area').innerHTML = html;
+}
+
+function selectAnswer(idx) {
+  if (quizState.answers.hasOwnProperty(quizState.current)) return;
+  const q = quizState.questions[quizState.current];
+  quizState.answers[quizState.current] = idx;
+  quizState.answered++;
+  if (idx === q.answer) quizState.score++;
+  document.getElementById('next-btn').disabled = false;
+  renderQuestion();
+}
+
+function nextQuestion() {
+  if (quizState.current < quizState.questions.length - 1) {
+    quizState.current++;
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function showResults() {
+  const pct = Math.round((quizState.score / quizState.questions.length) * 100);
+  const cls = pct >= 80 ? 'great' : pct >= 50 ? 'ok' : 'bad';
+  const msg = pct >= 80 ? 'Excellent! You\'re well prepared.' : pct >= 50 ? 'Good foundation. Review the weak areas.' : 'Keep studying. Focus on the topics below.';
+
+  // Save best score
+  const best = localStorage.getItem('de-best-score');
+  if (!best || pct > parseInt(best)) {
+    localStorage.setItem('de-best-score', pct);
+  }
+
+  // Topic breakdown
+  const topicScores = {};
+  quizState.questions.forEach((q, i) => {
+    if (!topicScores[q.topic]) topicScores[q.topic] = {correct:0,total:0};
+    topicScores[q.topic].total++;
+    if (quizState.answers[i] === q.answer) topicScores[q.topic].correct++;
+  });
+
+  // Save weak topics
+  const weak = Object.entries(topicScores).filter(([,v]) => v.correct/v.total < 0.6).map(([k]) => k);
+  localStorage.setItem('de-weak-topics', JSON.stringify(weak));
+
+  let breakdownHtml = Object.entries(topicScores).map(([topic, s]) => {
+    const tpct = Math.round((s.correct/s.total)*100);
+    const color = tpct >= 80 ? 'var(--green)' : tpct >= 50 ? 'var(--orange)' : 'var(--red)';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px;background:var(--surface);border-radius:8px;margin:4px 0">
+      <span style="font-size:14px">${topic}</span>
+      <span style="color:${color};font-weight:600">${s.correct}/${s.total} (${tpct}%)</span></div>`;
+  }).join('');
+
+  document.querySelector('.quiz-container').classList.add('hidden');
+  const ra = document.getElementById('results-area');
+  ra.classList.remove('hidden');
+  ra.innerHTML = `<div class="results">
+    <div class="score-circle ${cls}">${pct}%<small>Score</small></div>
+    <h3>${msg}</h3>
+    <p>You got ${quizState.score} out of ${quizState.questions.length} questions correct.</p>
+    <div style="max-width:500px;margin:24px auto">${breakdownHtml}</div>
+    <div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button class="btn" onclick="startQuiz('all')">Retry All</button>
+      ${weak.length > 0 ? `<button class="btn" style="background:var(--orange)" onclick="startQuiz('weak')">Practice Weak Areas</button>` : ''}
+      <button class="btn secondary" onclick="showSection('home')">Home</button>
+    </div>
+  </div>`;
+}
+
+function getWeakTopics() {
+  try { return JSON.parse(localStorage.getItem('de-weak-topics') || '[]'); } catch { return []; }
+}
+
+// ============================================================
+// FLASHCARDS
+// ============================================================
+function initFlashcards(topic) {
+  fcState.filter = topic;
+  fcState.cards = topic === 'all' ? shuffle([...flashcards]) : shuffle(flashcards.filter(f => f.topic === topic));
+  fcState.current = 0;
+  renderFcFilter();
+  renderFlashcard();
+}
+
+function renderFcFilter() {
+  const bar = document.getElementById('fc-filter');
+  let html = `<div class="filter-chip ${fcState.filter==='all'?'active':''}" onclick="initFlashcards('all')">All</div>`;
+  topics.forEach(t => {
+    html += `<div class="filter-chip ${fcState.filter===t.id?'active':''}" onclick="initFlashcards('${t.id}')">${t.id.replace('Azure ','').replace(' Storage','')}</div>`;
+  });
+  bar.innerHTML = html;
+}
+
+function renderFlashcard() {
+  if (fcState.cards.length === 0) {
+    document.getElementById('fc-question').textContent = 'No cards for this topic';
+    document.getElementById('fc-answer').innerHTML = '';
+    document.getElementById('fc-topic').textContent = '';
+    document.getElementById('fc-counter').textContent = '0/0';
+    return;
+  }
+  const card = fcState.cards[fcState.current];
+  document.getElementById('flashcard').classList.remove('flipped');
+  document.getElementById('fc-topic').textContent = card.topic;
+  document.getElementById('fc-question').textContent = card.q;
+  document.getElementById('fc-answer').innerHTML = card.a;
+  document.getElementById('fc-counter').textContent = `${fcState.current+1}/${fcState.cards.length}`;
+}
+
+function flipCard() { document.getElementById('flashcard').classList.toggle('flipped'); }
+function nextCard() { if (fcState.current < fcState.cards.length-1) { fcState.current++; renderFlashcard(); } }
+function prevCard() { if (fcState.current > 0) { fcState.current--; renderFlashcard(); } }
+function rateCard(rating) {
+  fcState.ratings[fcState.current] = rating;
+  if (fcState.current < fcState.cards.length - 1) nextCard();
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// Start
+init();
+</script>
+</body>
+</html>

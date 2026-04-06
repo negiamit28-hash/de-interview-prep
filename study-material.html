@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DE Interview Study Material</title>
+<style>
+:root {
+  --bg:#0f172a; --surface:#1e293b; --surface2:#334155;
+  --accent:#3b82f6; --accent2:#8b5cf6; --accent3:#06b6d4;
+  --green:#22c55e; --red:#ef4444; --orange:#f59e0b;
+  --text:#f1f5f9; --text2:#94a3b8; --text3:#64748b;
+  --radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+
+.topbar{background:var(--surface);border-bottom:1px solid var(--surface2);padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;}
+.topbar h1{font-size:18px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.topbar a.back{background:var(--surface2);color:var(--text2);padding:8px 16px;border-radius:8px;font-size:13px;transition:all .2s;}
+.topbar a.back:hover{background:var(--accent);color:#fff;text-decoration:none;}
+
+.sidebar{position:fixed;top:52px;left:0;width:280px;height:calc(100vh - 52px);background:var(--surface);border-right:1px solid var(--surface2);overflow-y:auto;padding:16px 0;z-index:50;}
+.sidebar .toc-section{padding:4px 16px;margin-bottom:4px;}
+.sidebar .toc-section .toc-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:8px;padding:4px 0;}
+.sidebar .toc-item{display:block;padding:6px 16px;font-size:13px;color:var(--text2);border-radius:6px;margin:1px 8px;cursor:pointer;transition:all .15s;}
+.sidebar .toc-item:hover{background:var(--surface2);color:var(--text);text-decoration:none;}
+.sidebar .toc-item.active{background:rgba(59,130,246,.15);color:var(--accent);}
+
+.content{margin-left:280px;max-width:900px;padding:32px 40px 80px;}
+.content section{margin-bottom:48px;scroll-margin-top:70px;}
+.content h2{font-size:24px;margin-bottom:20px;padding-bottom:8px;border-bottom:2px solid var(--surface2);display:flex;align-items:center;gap:12px;}
+.content h2 .icon{font-size:28px;}
+.content h3{font-size:18px;color:var(--accent);margin:24px 0 12px;}
+.content h4{font-size:15px;color:var(--accent2);margin:16px 0 8px;}
+.content p{margin-bottom:12px;color:var(--text2);}
+.content strong{color:var(--text);}
+.content ul,.content ol{margin:8px 0 16px 20px;color:var(--text2);}
+.content li{margin-bottom:6px;}
+.content li strong{color:var(--text);}
+
+.info-box{background:var(--surface);border:1px solid var(--surface2);border-radius:var(--radius);padding:16px 20px;margin:16px 0;}
+.info-box.tip{border-left:4px solid var(--green);}
+.info-box.warn{border-left:4px solid var(--orange);}
+.info-box.key{border-left:4px solid var(--accent);}
+.info-box .box-title{font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-weight:600;}
+.info-box.tip .box-title{color:var(--green);}
+.info-box.warn .box-title{color:var(--orange);}
+.info-box.key .box-title{color:var(--accent);}
+
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;}
+th{background:var(--surface);color:var(--text);text-align:left;padding:10px 14px;border:1px solid var(--surface2);}
+td{padding:10px 14px;border:1px solid var(--surface2);color:var(--text2);}
+tr:hover td{background:rgba(59,130,246,.03);}
+
+code{background:var(--surface);padding:2px 6px;border-radius:4px;font-size:13px;color:var(--accent3);font-family:'Cascadia Code','Fira Code',Consolas,monospace;}
+pre{background:var(--surface);border:1px solid var(--surface2);border-radius:var(--radius);padding:16px;overflow-x:auto;margin:12px 0;font-size:13px;line-height:1.6;}
+pre code{background:none;padding:0;color:var(--text2);}
+
+.toggle-section{margin:12px 0;}
+.toggle-header{background:var(--surface);border:1px solid var(--surface2);border-radius:8px;padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:500;transition:all .2s;}
+.toggle-header:hover{border-color:var(--accent);}
+.toggle-header .arrow{transition:transform .2s;color:var(--text3);}
+.toggle-header.open .arrow{transform:rotate(90deg);}
+.toggle-body{display:none;padding:16px;background:var(--surface);border:1px solid var(--surface2);border-top:none;border-radius:0 0 8px 8px;}
+.toggle-body.open{display:block;}
+
+@media(max-width:900px){
+  .sidebar{display:none;}
+  .content{margin-left:0;padding:20px 16px 60px;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Study Material</h1>
+  <a class="back" href="index.html">&larr; Back to Quiz App</a>
+  <span style="margin-left:auto;font-size:12px;color:var(--text3)">Azure Data Engineering | Senior Interview Prep</span>
+</div>
+
+<div class="sidebar" id="sidebar"></div>
+
+<div class="content" id="content">
+
+<!-- ================================================================ -->
+<!-- SECTION 1: AZURE DATA FACTORY -->
+<!-- ================================================================ -->
+<section id="adf">
+<h2><span class="icon">&#9881;</span> Azure Data Factory</h2>
+
+<h3>Architecture &amp; Core Concepts</h3>
+<p>ADF is a cloud-based, serverless PaaS for ETL/ELT data integration. It orchestrates data movement and transformation across hybrid environments with 100+ connectors.</p>
+
+<h4>Core Entities</h4>
+<ul>
+  <li><strong>Pipelines</strong> — Logical groupings of activities (max 80 per pipeline). Can be nested via Execute Pipeline activity.</li>
+  <li><strong>Activities</strong> — Three categories: Data movement (Copy), Data transformation (Data Flow, Databricks, SP), Control flow (ForEach, If, Switch, Until, Lookup, etc.)</li>
+  <li><strong>Datasets</strong> — Schema representations pointing to data. Parameterizable. Eliminated in Fabric (inline properties).</li>
+  <li><strong>Linked Services</strong> — Connection definitions with auth. Support parameterization for multi-environment configs.</li>
+  <li><strong>Triggers</strong> — Schedule, Tumbling Window (retry + dependency support), Event-based (blob creation), Custom Event (Event Grid topics).</li>
+</ul>
+
+<h4>Integration Runtimes (IR)</h4>
+<table>
+  <tr><th>IR Type</th><th>Use Case</th><th>Key Details</th></tr>
+  <tr><td><strong>Azure IR</strong></td><td>Cloud-to-cloud, Data Flows</td><td>Serverless. Auto-resolve or pinned region. DIU range 4-256. Supports Managed VNet.</td></tr>
+  <tr><td><strong>Self-hosted IR</strong></td><td>On-prem / private network</td><td>Windows machines. Up to 8 nodes HA. Shared across 120 factories.</td></tr>
+  <tr><td><strong>Azure-SSIS IR</strong></td><td>SSIS package lift-and-shift</td><td>Managed VM cluster. Bring your own SSISDB. Start/stop for cost control.</td></tr>
+</table>
+
+<div class="info-box key">
+  <div class="box-title">Senior-Level Insight</div>
+  <p>Azure IR auto-resolve picks the closest region to the <strong>sink</strong> for Copy, but uses the <strong>factory region</strong> for Data Flows. For data compliance (GDPR), pin IR to a specific region.</p>
+</div>
+
+<h3>Advanced Features</h3>
+
+<h4>Mapping Data Flows vs Wrangling Data Flows</h4>
+<table>
+  <tr><th>Aspect</th><th>Mapping Data Flows</th><th>Wrangling Data Flows</th></tr>
+  <tr><td>Engine</td><td>Apache Spark (managed)</td><td>Power Query (M language)</td></tr>
+  <tr><td>Target user</td><td>Data engineers</td><td>Analysts/citizen integrators</td></tr>
+  <tr><td>Status (2026)</td><td><strong>Active, Spark 3.4</strong></td><td><strong>Deprecated</strong>; replaced by Dataflow Gen2 in Fabric</td></tr>
+</table>
+
+<h4>Parameterization &amp; Dynamic Content</h4>
+<ul>
+  <li><strong>Pipeline parameters</strong> — passed between parent/child pipelines via Execute Pipeline</li>
+  <li><strong>Dataset parameters</strong> — single dataset serves multiple tables: <code>@dataset().tableName</code></li>
+  <li><strong>Linked Service parameters</strong> — dynamically change connection targets per environment</li>
+  <li><strong>Global parameters</strong> — Factory-level constants, overridable per environment in ARM parameter files</li>
+  <li><strong>System variables</strong> — <code>@pipeline().RunId</code>, <code>@pipeline().TriggerTime</code>, <code>@trigger().outputs.windowStartTime</code></li>
+  <li><strong>Expression language</strong> — 200+ functions: <code>@concat()</code>, <code>@formatDateTime()</code>, <code>@activity('name').output</code></li>
+</ul>
+
+<div class="info-box tip">
+  <div class="box-title">Best Practice</div>
+  <p>Combine parameterized linked services + Key Vault references + global parameters for environment-agnostic pipelines. A single ADF codebase targets dev/test/prod by only changing the Key Vault name parameter.</p>
+</div>
+
+<h3>CI/CD with ADF</h3>
+<ul>
+  <li>Only <strong>dev</strong> connects to Git (Azure DevOps or GitHub). Test/prod deploy via CI/CD.</li>
+  <li><strong>adf_publish branch</strong>: Auto-generated ARM templates on publish. Alternative: <code>@microsoft/azure-data-factory-utilities</code> npm package for CI-triggered generation.</li>
+  <li><strong>Deployment flow</strong>: Dev → ARM template → Pre-deployment script (stop triggers) → Incremental ARM deploy → Post-deployment script (restart triggers) → Repeat for prod.</li>
+  <li><strong>Never use Complete mode</strong> for ARM deployment (deletes resources not in template).</li>
+  <li>IR names must be identical across all stages.</li>
+  <li>Cherry-picking/selective publishing is not supported by design.</li>
+</ul>
+
+<h3>Performance Tuning</h3>
+
+<h4>Data Integration Units (DIUs)</h4>
+<ul>
+  <li>Measure CPU + memory + network for Azure IR. Range: 4-256.</li>
+  <li><strong>Auto setting pitfall</strong>: optimizes by file count, not file size. Large files may be underprovisioned — override manually.</li>
+  <li>Billing: DIUs used × duration × unit price/DIU-hour.</li>
+</ul>
+
+<h4>Parallel Copy</h4>
+<ul>
+  <li><code>parallelCopies</code> controls max threads within a single Copy activity.</li>
+  <li>Orthogonal to DIUs — parallelism operates within DIU allocation.</li>
+  <li>Self-hosted IR: max effective parallel copy is 4-5 per node for Blob/ADLS Gen2.</li>
+</ul>
+
+<h4>Staged Copy</h4>
+<ul>
+  <li>Uses Blob/ADLS Gen2 as interim staging for PolyBase/COPY into Synapse.</li>
+  <li>Enables compression during on-prem transfers and workaround for port restrictions (443 only).</li>
+</ul>
+
+<h4>TTL for Managed VNet</h4>
+<ul>
+  <li>Keeps compute warm between activities (cold start takes minutes).</li>
+  <li>Critical for ForEach loops. Billing continues during TTL window.</li>
+</ul>
+
+<h3>Security</h3>
+<table>
+  <tr><th>Pattern</th><th>When to Use</th></tr>
+  <tr><td>Public endpoints + IP allowlisting</td><td>Quick start, non-sensitive data</td></tr>
+  <tr><td>Self-hosted IR behind firewall</td><td>On-prem data, full network control</td></tr>
+  <tr><td>Managed VNet + private endpoints</td><td>Cloud-native, zero-trust, prevent data exfiltration</td></tr>
+  <tr><td>Managed VNet + Self-hosted IR</td><td>Hybrid: on-prem source to private cloud sink</td></tr>
+</table>
+<ul>
+  <li><strong>Managed Identities</strong>: System-assigned (auto-created) or user-assigned. Recommended for all Azure-native linked services.</li>
+  <li><strong>Key Vault</strong>: Store credentials, reference from linked services. Separate KVs per environment.</li>
+  <li><strong>Managed VNet</strong>: Traffic stays on Microsoft backbone via Private Link. Private endpoints require owner approval.</li>
+</ul>
+
+<h3>Monitoring &amp; Troubleshooting</h3>
+<ul>
+  <li>ADF retains pipeline run data for <strong>45 days only</strong> — route to Log Analytics for long-term retention.</li>
+  <li>Use KQL queries for advanced analysis of durations, failures, and resource consumption.</li>
+  <li>Copy activity monitoring: DIUs used, throughput (MB/s), duration breakdown (queue vs transfer).</li>
+  <li>Set up Azure Monitor metric alerts on <code>PipelineFailedRuns</code>, <code>ActivityFailedRuns</code>.</li>
+</ul>
+
+<h3>ADF vs Alternatives</h3>
+<table>
+  <tr><th>Dimension</th><th>ADF</th><th>Synapse Pipelines</th><th>Databricks Workflows</th><th>Fabric Data Factory</th></tr>
+  <tr><td>Model</td><td>Low-code + expressions</td><td>Same as ADF (~90%)</td><td>Code-first (Python/Scala)</td><td>Low-code + Copilot AI</td></tr>
+  <tr><td>Compute</td><td>Serverless (DIU)</td><td>Serverless + dedicated</td><td>Cluster-based</td><td>Capacity-based (F SKU)</td></tr>
+  <tr><td>Best For</td><td>Hybrid ETL, 100+ connectors</td><td>Unified analytics + ETL</td><td>Complex transforms, ML</td><td>Fabric-native, OneLake</td></tr>
+</table>
+
+<div class="info-box warn">
+  <div class="box-title">2026 Strategic Direction</div>
+  <p>Microsoft is actively migrating customers from ADF to <strong>Fabric Data Factory</strong>. ~90% of ADF activities available in Fabric. Migration tooling launched March 2026. Key gaps: Azure-SSIS IR and Managed VNet private endpoints not yet in Fabric.</p>
+</div>
+
+<h3>Common Interview Questions</h3>
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>View Senior-Level ADF Interview Questions</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <ol>
+      <li><strong>Design a multi-environment ADF deployment strategy.</strong> — Git on dev only, ARM templates via CI/CD, parameterized linked services, separate Key Vaults, pre/post-deployment scripts.</li>
+      <li><strong>How do you handle schema drift?</strong> — Mapping Data Flows support it natively; use <code>byName()</code> and <code>byPosition()</code> functions; enable "Allow schema drift" on source.</li>
+      <li><strong>Execute Pipeline vs nested ForEach?</strong> — Execute Pipeline creates child runs (separate monitoring, retry); ForEach iterates within the same run.</li>
+      <li><strong>Implement incremental loads.</strong> — Tumbling window triggers with watermark columns; Lookup for last timestamp from control table; Copy with query filtering.</li>
+      <li><strong>A copy job is slow — troubleshoot.</strong> — Check DIU utilization, queue vs transfer time, source/sink throttling, parallel copy settings, consider staged copy for Synapse.</li>
+      <li><strong>Prevent data exfiltration.</strong> — Managed VNet + managed private endpoints; approved only for sanctioned destinations.</li>
+      <li><strong>ADF testing approach.</strong> — Unit test expressions in debug; integration test with small datasets; parameterized pipelines for test/prod datasets; validate ARM templates in CI.</li>
+    </ol>
+  </div>
+</div>
+</section>
+
+<!-- ================================================================ -->
+<!-- SECTION 2: DATABRICKS -->
+<!-- ================================================================ -->
+<section id="databricks">
+<h2><span class="icon">&#9889;</span> Databricks &amp; PySpark</h2>
+
+<h3>Databricks Architecture</h3>
+<ul>
+  <li><strong>Workspace</strong>: Collaboration environment with notebooks, repos, jobs, SQL warehouse.</li>
+  <li><strong>All-Purpose Clusters</strong>: Persistent, interactive development and shared workloads.</li>
+  <li><strong>Job Clusters</strong>: Auto-created per job run, terminated after — cost-efficient for production.</li>
+  <li><strong>Instance Pools</strong>: Pre-warmed VMs to reduce cluster startup time.</li>
+  <li><strong>Unity Catalog</strong>: Centralized governance — 3-level namespace (catalog.schema.table), access control, lineage.</li>
+</ul>
+
+<h3>Delta Lake Deep Dive</h3>
+<p>Open-source storage layer providing ACID transactions on top of Parquet files in data lakes.</p>
+
+<h4>Key Features</h4>
+<table>
+  <tr><th>Feature</th><th>Description</th></tr>
+  <tr><td><strong>ACID Transactions</strong></td><td>Serializable isolation via transaction log (_delta_log). Concurrent reads and writes.</td></tr>
+  <tr><td><strong>Time Travel</strong></td><td><code>SELECT * FROM t VERSION AS OF 5</code> or <code>TIMESTAMP AS OF '2026-01-01'</code>. Audit, rollback, reproducibility.</td></tr>
+  <tr><td><strong>Schema Enforcement</strong></td><td>Rejects writes that don't match table schema. <code>mergeSchema</code> option for evolution.</td></tr>
+  <tr><td><strong>OPTIMIZE</strong></td><td>Compacts small files into larger ones (~1GB target). Run regularly for read performance.</td></tr>
+  <tr><td><strong>VACUUM</strong></td><td>Removes files no longer referenced. Respects retention period (default 7 days). Run after OPTIMIZE.</td></tr>
+  <tr><td><strong>Z-Ordering</strong></td><td>Co-locates related data in files for predicate pushdown: <code>OPTIMIZE t ZORDER BY (col)</code></td></tr>
+  <tr><td><strong>Liquid Clustering</strong></td><td>Incremental clustering without full rewrites. Adapts to query patterns. Replaces Z-ordering for new tables.</td></tr>
+</table>
+
+<h3>PySpark Performance</h3>
+
+<h4>Catalyst Optimizer</h4>
+<ol>
+  <li><strong>Parse</strong> → unresolved logical plan</li>
+  <li><strong>Analyze</strong> → resolve column/table references</li>
+  <li><strong>Rule-based optimization</strong> → predicate pushdown, column pruning, constant folding</li>
+  <li><strong>Cost-based optimization</strong> → generate physical plans, pick cheapest</li>
+</ol>
+<p>This is why DataFrame API and SQL have identical performance.</p>
+
+<h4>Adaptive Query Execution (AQE)</h4>
+<ul>
+  <li><strong>Coalesce partitions</strong>: Merges small post-shuffle partitions to reduce task overhead.</li>
+  <li><strong>Switch join strategy</strong>: Sort-merge → broadcast hash join if one side is small at runtime.</li>
+  <li><strong>Handle skew</strong>: Splits skewed partitions for parallel processing.</li>
+  <li>Enabled by default since Spark 3.2. Collects runtime statistics during shuffle stages.</li>
+</ul>
+
+<h4>Narrow vs Wide Transformations</h4>
+<table>
+  <tr><th>Narrow (No Shuffle)</th><th>Wide (Shuffle Required)</th></tr>
+  <tr><td>map, filter, union, select</td><td>groupBy, join, repartition, distinct, orderBy</td></tr>
+  <tr><td>Each partition → one output</td><td>Partitions → multiple outputs (network transfer)</td></tr>
+</table>
+
+<h4>Data Skew Handling</h4>
+<ol>
+  <li><strong>AQE skew join</strong>: Automatic in Spark 3.2+ with AQE enabled.</li>
+  <li><strong>Key salting</strong>: Add random prefix to hot keys, join on salted key, then aggregate to remove salt.</li>
+  <li><strong>Broadcast join</strong>: If one side is small, <code>df.join(broadcast(small_df), 'key')</code>.</li>
+  <li><strong>Isolate hot keys</strong>: Process hot keys separately, union results.</li>
+</ol>
+
+<h4>Partitioning Best Practices</h4>
+<ul>
+  <li>Target <strong>128MB-256MB per partition</strong> for optimal task size.</li>
+  <li>Use <code>repartition(n)</code> for even distribution, <code>coalesce(n)</code> to reduce without shuffle.</li>
+  <li>Partition by high-cardinality columns that are commonly filtered (e.g., date).</li>
+  <li>Avoid over-partitioning (too many small files) or under-partitioning (OOM).</li>
+</ul>
+
+<h3>Structured Streaming</h3>
+<ul>
+  <li><strong>Triggers</strong>: processingTime ('10 seconds'), once (single micro-batch), availableNow (process all available, then stop), continuous (experimental low-latency).</li>
+  <li><strong>Watermarks</strong>: <code>withWatermark('timestamp', '10 minutes')</code> — defines max expected lateness for window aggregations.</li>
+  <li><strong>Checkpointing</strong>: Writes progress to durable storage (ADLS/S3). Enables exactly-once with idempotent sinks.</li>
+  <li><strong>Output modes</strong>: append (new rows only), complete (full result), update (changed rows).</li>
+</ul>
+
+<h3>Unity Catalog</h3>
+<ul>
+  <li><strong>3-level namespace</strong>: catalog.schema.table (replaces hive_metastore)</li>
+  <li><strong>Access control</strong>: GRANT/REVOKE at catalog, schema, table, column level</li>
+  <li><strong>Lineage</strong>: Automatic tracking of data flow between tables</li>
+  <li><strong>Audit logs</strong>: Who accessed what, when</li>
+  <li><strong>Cross-workspace</strong>: Single governance layer across all workspaces in account</li>
+</ul>
+
+<h3>Photon Engine</h3>
+<p>C++ native <strong>vectorized execution engine</strong> replacing parts of JVM-based Spark. Accelerates SQL queries, joins, and aggregations on Delta tables. Available on Photon-enabled cluster types. No code changes needed — it's transparent.</p>
+
+<h3>Common Interview Questions</h3>
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>View Databricks/PySpark Interview Questions</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <ol>
+      <li><strong>Explain Delta Lake ACID transactions.</strong> — Transaction log (_delta_log) with JSON entries for each commit. Optimistic concurrency control. Readers see consistent snapshot.</li>
+      <li><strong>When to use Liquid Clustering vs Z-ordering?</strong> — Liquid Clustering for new tables (incremental, adapts). Z-ordering for existing tables (requires full OPTIMIZE, static columns).</li>
+      <li><strong>How does Spark handle memory?</strong> — Unified memory: execution (shuffle, joins) + storage (cached data) share a pool. Execution can evict storage. Tune <code>spark.memory.fraction</code>.</li>
+      <li><strong>Explain the difference between repartition and coalesce.</strong> — Repartition: full shuffle, can increase or decrease partitions. Coalesce: no shuffle, can only decrease, may result in uneven partitions.</li>
+      <li><strong>Design a streaming pipeline for real-time fraud detection.</strong> — Event Hubs → Structured Streaming with watermarks → stateful processing (mapGroupsWithState) → Delta table → alerts.</li>
+      <li><strong>How do you handle small file problem in Delta Lake?</strong> — OPTIMIZE for compaction, auto-optimize (optimizedWrite + autoCompact), Liquid Clustering for ongoing compaction.</li>
+    </ol>
+  </div>
+</div>
+</section>
+
+<!-- ================================================================ -->
+<!-- SECTION 3: SQL -->
+<!-- ================================================================ -->
+<section id="sql">
+<h2><span class="icon">&#128450;</span> Advanced SQL</h2>
+
+<h3>Window Functions</h3>
+<pre><code>-- Ranking
+SELECT name, score,
+  ROW_NUMBER() OVER (ORDER BY score DESC) as rn,     -- 1,2,3,4
+  RANK()       OVER (ORDER BY score DESC) as rnk,    -- 1,2,2,4 (gap)
+  DENSE_RANK() OVER (ORDER BY score DESC) as drnk,   -- 1,2,2,3 (no gap)
+  NTILE(4)     OVER (ORDER BY score DESC) as quartile -- Divide into 4 groups
+FROM students;
+
+-- Analytics
+SELECT date, revenue,
+  SUM(revenue) OVER (ORDER BY date ROWS UNBOUNDED PRECEDING) as running_total,
+  AVG(revenue) OVER (ORDER BY date ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) as moving_avg_7d,
+  LAG(revenue, 1)  OVER (ORDER BY date) as prev_day,
+  LEAD(revenue, 1) OVER (ORDER BY date) as next_day,
+  revenue - LAG(revenue,1) OVER (ORDER BY date) as day_over_day_change
+FROM daily_sales;</code></pre>
+
+<h3>CTEs &amp; Recursive CTEs</h3>
+<pre><code>-- Recursive CTE: Org chart hierarchy
+WITH RECURSIVE org_tree AS (
+  -- Anchor: top-level manager
+  SELECT id, name, manager_id, 1 as level
+  FROM employees WHERE manager_id IS NULL
+  UNION ALL
+  -- Recursive: each subordinate
+  SELECT e.id, e.name, e.manager_id, t.level + 1
+  FROM employees e
+  JOIN org_tree t ON e.manager_id = t.id
+)
+SELECT * FROM org_tree ORDER BY level, name;</code></pre>
+
+<h3>MERGE Statement</h3>
+<pre><code>MERGE INTO target t
+USING source s ON t.id = s.id
+WHEN MATCHED AND s.updated > t.updated THEN
+  UPDATE SET t.name = s.name, t.amount = s.amount
+WHEN NOT MATCHED BY TARGET THEN
+  INSERT (id, name, amount) VALUES (s.id, s.name, s.amount)
+WHEN NOT MATCHED BY SOURCE THEN
+  DELETE;</code></pre>
+<div class="info-box warn">
+  <div class="box-title">Pitfall</div>
+  <p>If source has <strong>duplicate join keys</strong>, MERGE behavior is non-deterministic. Always deduplicate the source CTE before the MERGE.</p>
+</div>
+
+<h3>Transaction Isolation Levels</h3>
+<table>
+  <tr><th>Level</th><th>Dirty Read</th><th>Non-Repeatable</th><th>Phantom</th><th>Notes</th></tr>
+  <tr><td>READ UNCOMMITTED</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Fastest, least safe</td></tr>
+  <tr><td>READ COMMITTED</td><td>No</td><td>Yes</td><td>Yes</td><td>Default in most DBs</td></tr>
+  <tr><td>REPEATABLE READ</td><td>No</td><td>No</td><td>Yes</td><td>Locks read rows</td></tr>
+  <tr><td>SERIALIZABLE</td><td>No</td><td>No</td><td>No</td><td>Full isolation, slowest</td></tr>
+  <tr><td>SNAPSHOT</td><td>No</td><td>No</td><td>No</td><td>Row versioning, readers don't block writers</td></tr>
+</table>
+
+<h3>Synapse Distribution Strategies</h3>
+<table>
+  <tr><th>Strategy</th><th>Best For</th><th>Details</th></tr>
+  <tr><td><strong>Hash</strong></td><td>Large fact tables</td><td>Distribute on join key. Co-locates data, minimizes movement. Choose high-cardinality column.</td></tr>
+  <tr><td><strong>Round-robin</strong></td><td>Staging / temp tables</td><td>Even spread across distributions. Default. Data movement for every join.</td></tr>
+  <tr><td><strong>Replicate</strong></td><td>Small dimension tables (&lt;2GB)</td><td>Full copy on every compute node. Eliminates broadcast during joins.</td></tr>
+</table>
+
+<h3>Index Types</h3>
+<ul>
+  <li><strong>B-tree (Clustered/Nonclustered)</strong>: Standard for OLTP point lookups and range scans.</li>
+  <li><strong>Columnstore</strong>: Column-oriented, 10x compression. Ideal for analytics (large scans, aggregations). Use clustered columnstore for DW fact tables.</li>
+  <li><strong>Covering Index</strong>: Includes all columns needed by a query → avoids key lookup. <code>CREATE INDEX ix ON t(a,b) INCLUDE(c,d)</code></li>
+  <li><strong>Materialized Views</strong>: Pre-computed aggregations. Synapse auto-maintains and auto-selects them in query plans.</li>
+</ul>
+
+<h3>Query Optimization Tips</h3>
+<ul>
+  <li>Read execution plans — look for <strong>scans</strong> (bad), <strong>seeks</strong> (good), <strong>sort warnings</strong>, <strong>hash spills</strong>.</li>
+  <li>Use <code>SET STATISTICS IO ON</code> to see logical reads.</li>
+  <li>Avoid <code>SELECT *</code> — column pruning is critical for columnstore.</li>
+  <li>SARGable predicates: <code>WHERE col &gt; 5</code> (good) vs <code>WHERE YEAR(col) = 2026</code> (bad, wraps column in function).</li>
+  <li>Update statistics regularly: <code>UPDATE STATISTICS table</code>.</li>
+</ul>
+</section>
+
+<!-- ================================================================ -->
+<!-- SECTION 4: DATA MODELING -->
+<!-- ================================================================ -->
+<section id="data-modeling">
+<h2><span class="icon">&#128202;</span> Data Modeling</h2>
+
+<h3>Dimensional Modeling (Kimball)</h3>
+<h4>Star Schema</h4>
+<ul>
+  <li><strong>Fact tables</strong>: Contain measures (revenue, quantity) and foreign keys to dimensions. Types: transactional, periodic snapshot, accumulating snapshot.</li>
+  <li><strong>Dimension tables</strong>: Descriptive attributes (customer name, product category). Denormalized for query simplicity.</li>
+  <li>Central fact surrounded by dimensions — "star" shape. Preferred for modern cloud DWs.</li>
+</ul>
+
+<h4>Snowflake Schema</h4>
+<ul>
+  <li>Dimensions are normalized into sub-dimensions (e.g., product → category → department).</li>
+  <li>Less storage redundancy but more complex joins. Rarely preferred in modern practice.</li>
+</ul>
+
+<h3>Slowly Changing Dimensions (SCD)</h3>
+<table>
+  <tr><th>Type</th><th>Approach</th><th>History</th><th>Use Case</th></tr>
+  <tr><td><strong>Type 0</strong></td><td>Never change</td><td>Original only</td><td>Date of birth, SSN</td></tr>
+  <tr><td><strong>Type 1</strong></td><td>Overwrite</td><td>None</td><td>Correcting errors, unimportant changes</td></tr>
+  <tr><td><strong>Type 2</strong></td><td>New row + effective dates + is_current flag</td><td>Full</td><td>Customer address changes, most common</td></tr>
+  <tr><td><strong>Type 3</strong></td><td>Add column for previous value</td><td>One prior</td><td>When only previous value matters</td></tr>
+  <tr><td><strong>Type 4</strong></td><td>Separate history table</td><td>Full</td><td>When current table must stay small</td></tr>
+  <tr><td><strong>Type 6</strong></td><td>Hybrid 1+2+3</td><td>Full + current</td><td>Need both historical rows and current overwrite</td></tr>
+</table>
+
+<div class="info-box key">
+  <div class="box-title">SCD Type 2 Implementation</div>
+  <p>Requires <strong>surrogate keys</strong> (natural key now has multiple rows). Add columns: <code>effective_date</code>, <code>end_date</code> (9999-12-31 for current), <code>is_current</code> flag. Use MERGE to detect changes and manage row versioning.</p>
+</div>
+
+<h3>Data Vault 2.0</h3>
+<table>
+  <tr><th>Component</th><th>Purpose</th><th>Content</th></tr>
+  <tr><td><strong>Hub</strong></td><td>Business entity identity</td><td>Business key, hash key, load date, source</td></tr>
+  <tr><td><strong>Link</strong></td><td>Relationships between hubs</td><td>Hash key, FK to hubs, load date, source</td></tr>
+  <tr><td><strong>Satellite</strong></td><td>Descriptive attributes + history</td><td>FK to hub/link, attributes, load date, source, hash diff</td></tr>
+</table>
+<p><strong>Advantages</strong>: Insert-only (no updates), parallel loading, full audit trail, handles source changes gracefully. <strong>Best for</strong>: many source systems, regulatory audit requirements, agile development.</p>
+
+<h3>Medallion Architecture (Bronze / Silver / Gold)</h3>
+<ul>
+  <li><strong>Bronze</strong>: Raw ingestion. Append-only, schema-on-read. Preserves source fidelity. Partitioned by ingestion date.</li>
+  <li><strong>Silver</strong>: Cleaned, deduplicated, standardized, schema-enforced. Conformed dimensions. Business rules applied.</li>
+  <li><strong>Gold</strong>: Business-ready. Star schemas, aggregations, feature tables, KPI datasets. Optimized for BI tools.</li>
+</ul>
+<p>De facto standard in Databricks/lakehouse. Each layer adds data quality. Supports data lineage and governance.</p>
+
+<h3>Advanced Concepts</h3>
+<ul>
+  <li><strong>Surrogate vs Natural Keys</strong>: Surrogate keys (auto-generated integers) are preferred for DWs — stable, compact joins, enable SCD Type 2. Natural keys (business keys) for operational systems.</li>
+  <li><strong>Degenerate Dimensions</strong>: Transaction identifiers (invoice #, order #) stored directly in fact table without a dimension table.</li>
+  <li><strong>Junk Dimensions</strong>: Combine low-cardinality flags/indicators (yes/no, status codes) into a single dimension table to avoid many small dimensions.</li>
+  <li><strong>Bridge Tables</strong>: Handle many-to-many relationships between fact and dimension (e.g., multiple patients per encounter). Contains weighting factors.</li>
+  <li><strong>Late-Arriving Facts</strong>: Facts arrive before their dimension context. Use default/unknown dimension members, then update when dimension data arrives.</li>
+  <li><strong>Late-Arriving Dimensions</strong>: Dimension changes arrive after facts referencing them. Restate the dimension (SCD Type 2 with backdated effective dates) and reprocess affected facts.</li>
+</ul>
+</section>
+
+<!-- ================================================================ -->
+<!-- SECTION 5: ADLS -->
+<!-- ================================================================ -->
+<section id="adls">
+<h2><span class="icon">&#128193;</span> Azure Data Lake Storage Gen2</h2>
+
+<h3>Architecture</h3>
+<ul>
+  <li>ADLS Gen2 = Azure Blob Storage + <strong>Hierarchical Namespace (HNS)</strong>.</li>
+  <li>HNS enables atomic directory operations (rename/delete in O(1)), POSIX ACLs, and better analytics performance.</li>
+  <li>Same pricing as Blob Storage. Same APIs (Blob REST, ABFS driver for Hadoop).</li>
+  <li>ABFS driver: <code>abfss://container@account.dfs.core.windows.net/path</code></li>
+</ul>
+
+<h3>Storage Tiers &amp; Lifecycle Management</h3>
+<table>
+  <tr><th>Tier</th><th>Access Cost</th><th>Storage Cost</th><th>Min Retention</th><th>Best For</th></tr>
+  <tr><td><strong>Hot</strong></td><td>Lowest</td><td>Highest</td><td>None</td><td>Frequently accessed data</td></tr>
+  <tr><td><strong>Cool</strong></td><td>Medium</td><td>Lower</td><td>30 days</td><td>Infrequent access (&gt;30 days)</td></tr>
+  <tr><td><strong>Cold</strong></td><td>Higher</td><td>Lower still</td><td>90 days</td><td>Rarely accessed</td></tr>
+  <tr><td><strong>Archive</strong></td><td>Highest</td><td>Lowest</td><td>180 days</td><td>Compliance, long-term backup (hours to rehydrate)</td></tr>
+</table>
+<p><strong>Lifecycle management policies</strong>: Automatically tier data based on last modified/accessed date. E.g., move to Cool after 30 days, Archive after 90 days.</p>
+
+<h3>Security Model</h3>
+<h4>RBAC vs ACLs</h4>
+<ul>
+  <li><strong>RBAC</strong>: Azure role-based access at container/account level. Evaluated first — if granted, ACLs are skipped.</li>
+  <li><strong>ACLs</strong>: POSIX-style, path-level (specific folders/files). Access ACLs + Default ACLs (inherited by new children).</li>
+  <li><strong>Best practice</strong>: RBAC for service principals and broad access. ACLs for fine-grained, user-level folder permissions.</li>
+</ul>
+<h4>Encryption &amp; Network Security</h4>
+<ul>
+  <li>Encryption at rest: Microsoft-managed keys (default) or customer-managed keys (CMK) via Key Vault.</li>
+  <li>Encryption in transit: TLS 1.2+ enforced.</li>
+  <li>Private endpoints: Access via Azure Private Link (no public internet).</li>
+  <li>Firewall: IP rules, VNet service endpoints, trusted Azure services.</li>
+</ul>
+
+<h3>Performance Optimization</h3>
+<ul>
+  <li><strong>File size</strong>: Target 256MB-1GB. Avoid small files problem (&lt;1MB each).</li>
+  <li><strong>Folder structure</strong>: Partition by date: <code>/data/year=2026/month=04/day=06/</code>. Avoid too-deep nesting.</li>
+  <li><strong>Parquet format</strong>: Columnar, compressed, predicate pushdown. Row group size ~128MB.</li>
+  <li><strong>Delta Lake on ADLS</strong>: Adds ACID, time travel, compaction (OPTIMIZE). De facto standard for lakehouse.</li>
+</ul>
+
+<h3>Data Organization Pattern</h3>
+<pre><code>storage_account/
+  raw/              # Bronze - landing zone
+    source1/
+      year=2026/month=04/
+    source2/
+  curated/          # Silver - cleaned, conformed
+    domain1/
+      entity1/      # Delta tables
+  consumption/      # Gold - business-ready
+    finance/
+    marketing/
+  sandbox/          # Development/exploration
+  archive/          # Long-term retention (Cool/Archive tier)</code></pre>
+</section>
+
+<!-- ================================================================ -->
+<!-- SECTION 6: STREAM PROCESSING -->
+<!-- ================================================================ -->
+<section id="streaming">
+<h2><span class="icon">&#127754;</span> Stream Data Processing</h2>
+
+<h3>Lambda vs Kappa Architecture</h3>
+<table>
+  <tr><th>Aspect</th><th>Lambda</th><th>Kappa</th></tr>
+  <tr><td>Layers</td><td>Batch + Speed + Serving</td><td>Single stream processing</td></tr>
+  <tr><td>Codebases</td><td>Two (batch + stream)</td><td>One (unified)</td></tr>
+  <tr><td>Reprocessing</td><td>Re-run batch layer</td><td>Replay event log</td></tr>
+  <tr><td>Complexity</td><td>Higher (maintain two paths)</td><td>Lower (single path)</td></tr>
+  <tr><td>Best For</td><td>Legacy systems needing batch accuracy</td><td>Modern event-driven architectures</td></tr>
+</table>
+
+<h3>Azure Event Hubs</h3>
+<ul>
+  <li><strong>Architecture</strong>: Partitioned event log (like Kafka topics). Each partition is an ordered sequence.</li>
+  <li><strong>Partitions</strong>: Unit of parallelism. 1-32 per Event Hub (Basic/Standard), up to 2000 (Premium/Dedicated).</li>
+  <li><strong>Consumer Groups</strong>: Independent readers. Each group maintains its own offset. Max 5 (Standard) or 100 (Premium).</li>
+  <li><strong>Capture</strong>: Auto-archive to ADLS/Blob in Avro format. Zero-code data lake ingestion.</li>
+  <li><strong>Throughput Units (TU)</strong>: 1 TU = 1 MB/s ingress, 2 MB/s egress. Auto-inflate for scaling.</li>
+  <li><strong>Kafka compatibility</strong>: Event Hubs Premium/Dedicated supports Kafka protocol natively.</li>
+</ul>
+
+<h3>Azure Stream Analytics</h3>
+<h4>Windowing Types</h4>
+<table>
+  <tr><th>Window</th><th>Behavior</th><th>Use Case</th></tr>
+  <tr><td><strong>Tumbling</strong></td><td>Fixed-size, non-overlapping</td><td>Aggregate every 5 minutes</td></tr>
+  <tr><td><strong>Hopping</strong></td><td>Fixed-size, overlapping by hop</td><td>5-min window every 1 min</td></tr>
+  <tr><td><strong>Sliding</strong></td><td>Triggered by events entering/leaving</td><td>Alert if >100 events in 5 min</td></tr>
+  <tr><td><strong>Session</strong></td><td>Groups events within timeout gap</td><td>User session analysis</td></tr>
+  <tr><td><strong>Snapshot</strong></td><td>Groups events with same timestamp</td><td>Point-in-time analysis</td></tr>
+</table>
+
+<h3>Spark Structured Streaming</h3>
+<ul>
+  <li><strong>Micro-batch model</strong>: Processes streaming data as a series of small batch jobs on DataFrames.</li>
+  <li><strong>Watermarks</strong>: <code>withWatermark('event_time', '10 minutes')</code> — max expected lateness. State beyond watermark is dropped.</li>
+  <li><strong>Checkpointing</strong>: Write-ahead log to ADLS/S3. Enables exactly-once with idempotent sinks.</li>
+  <li><strong>Triggers</strong>: <code>processingTime('10 seconds')</code>, <code>once=True</code> (single batch), <code>availableNow=True</code> (process all, then stop).</li>
+  <li><strong>Output modes</strong>: <code>append</code> (new rows), <code>complete</code> (full result), <code>update</code> (changed rows).</li>
+  <li><strong>Stateful processing</strong>: <code>mapGroupsWithState</code> and <code>flatMapGroupsWithState</code> for custom session windows, complex event patterns.</li>
+</ul>
+
+<h3>Change Data Capture (CDC)</h3>
+<ul>
+  <li><strong>What</strong>: Captures row-level INSERT/UPDATE/DELETE from source database transaction logs.</li>
+  <li><strong>Why</strong>: Low source impact (reads logs, not tables), real-time replication, event-driven architectures.</li>
+  <li><strong>Tools</strong>: Debezium (open source, Kafka Connect), Azure SQL CDC, Oracle GoldenGate, AWS DMS.</li>
+  <li><strong>Pattern</strong>: Source DB → CDC → Event Hub/Kafka → Spark Structured Streaming → Delta Lake (with MERGE for upserts).</li>
+</ul>
+
+<h3>Exactly-Once vs At-Least-Once</h3>
+<table>
+  <tr><th>Guarantee</th><th>Behavior</th><th>How</th></tr>
+  <tr><td><strong>At-most-once</strong></td><td>May lose messages</td><td>Commit offset before processing</td></tr>
+  <tr><td><strong>At-least-once</strong></td><td>No loss, may duplicate</td><td>Process then commit. Requires idempotent consumer.</td></tr>
+  <tr><td><strong>Exactly-once</strong></td><td>No loss, no duplicates</td><td>Transactional offset + write (Kafka transactions, Spark checkpointing + idempotent sinks)</td></tr>
+</table>
+</section>
+
+<!-- ================================================================ -->
+<!-- SECTION 7: PYTHON -->
+<!-- ================================================================ -->
+<section id="python">
+<h2><span class="icon">&#128013;</span> Python for Data Engineering</h2>
+
+<h3>Advanced Python Concepts</h3>
+
+<h4>Generators</h4>
+<ul>
+  <li>Use <code>yield</code> for lazy evaluation — critical for large datasets. <code>pd.read_csv(chunksize=N)</code> returns a generator.</li>
+  <li>Chain generators: <code>read_rows()</code> → <code>filter_valid()</code> → <code>transform()</code> — each a generator, memory stays flat.</li>
+  <li><code>yield from</code>: delegates to sub-generators. <code>send()</code> and <code>throw()</code> for coroutine-style communication.</li>
+</ul>
+
+<h4>Decorators</h4>
+<ul>
+  <li><strong>Three-layer pattern</strong>: decorator with arguments = outer factory → decorator → wrapper.</li>
+  <li>Always use <code>functools.wraps</code> to preserve function metadata.</li>
+  <li><strong>Data engineering uses</strong>: retry logic, timing/logging, connection management, schema validation.</li>
+</ul>
+
+<h4>Context Managers</h4>
+<ul>
+  <li><code>__enter__</code> / <code>__exit__</code> protocol. <code>with</code> guarantees cleanup even on exceptions.</li>
+  <li><code>contextlib.contextmanager</code>: convert generator with single <code>yield</code> into context manager.</li>
+  <li><code>contextlib.ExitStack</code>: manage dynamic number of resources.</li>
+</ul>
+
+<h4>Descriptors</h4>
+<ul>
+  <li><code>__get__</code>, <code>__set__</code>, <code>__delete__</code> protocol. Powers <code>property</code>, <code>classmethod</code>, <code>staticmethod</code>.</li>
+  <li>Data descriptors (with <code>__set__</code>) take precedence over instance <code>__dict__</code>.</li>
+  <li>Use for reusable field validators in data models.</li>
+</ul>
+
+<h3>Concurrency Model</h3>
+<table>
+  <tr><th>Model</th><th>Best For</th><th>GIL Impact</th><th>Example</th></tr>
+  <tr><td><strong>threading</strong></td><td>I/O-bound</td><td>Released during I/O</td><td>Concurrent API calls, DB queries</td></tr>
+  <tr><td><strong>multiprocessing</strong></td><td>CPU-bound</td><td>Separate processes</td><td>Parallel DataFrame transforms</td></tr>
+  <tr><td><strong>asyncio</strong></td><td>High-concurrency I/O</td><td>Single-threaded event loop</td><td>1000s of HTTP requests</td></tr>
+</table>
+<ul>
+  <li><strong>concurrent.futures</strong>: <code>ThreadPoolExecutor</code> / <code>ProcessPoolExecutor</code> — unified API with <code>map()</code>, <code>submit()</code>, <code>as_completed()</code>.</li>
+  <li><strong>Python 3.13+</strong>: PEP 703 introduces optional free-threaded build (no GIL). Game-changer for mixed CPU/IO workloads.</li>
+</ul>
+
+<h3>Data Libraries</h3>
+
+<h4>Pandas vs Polars</h4>
+<table>
+  <tr><th>Aspect</th><th>Pandas</th><th>Polars</th></tr>
+  <tr><td>Engine</td><td>NumPy/Arrow (2.0+)</td><td>Rust + Apache Arrow</td></tr>
+  <tr><td>Speed</td><td>Baseline</td><td>5-10x faster</td></tr>
+  <tr><td>Evaluation</td><td>Eager</td><td>Lazy (with optimization)</td></tr>
+  <tr><td>Threading</td><td>Single-threaded</td><td>Native multi-threaded</td></tr>
+  <tr><td>Index</td><td>Yes (confusing)</td><td>No index</td></tr>
+  <tr><td>Streaming</td><td>Chunked reading</td><td>Native streaming mode</td></tr>
+  <tr><td>Ecosystem</td><td>Massive (sklearn, plotly)</td><td>Growing</td></tr>
+</table>
+
+<h4>PyArrow</h4>
+<ul>
+  <li>Apache Arrow bindings — columnar format, zero-copy IPC between Python/R/Spark/DuckDB.</li>
+  <li><code>pyarrow.parquet</code>: Read/write with predicate pushdown and column pruning.</li>
+  <li><code>pyarrow.dataset</code>: Scan partitioned datasets across files with filter pushdown.</li>
+</ul>
+
+<h4>File Formats</h4>
+<table>
+  <tr><th>Format</th><th>Type</th><th>Best For</th></tr>
+  <tr><td><strong>Parquet</strong></td><td>Columnar</td><td>Analytics, aggregation, column pruning</td></tr>
+  <tr><td><strong>Avro</strong></td><td>Row-based</td><td>Write-heavy, schema evolution, streaming</td></tr>
+  <tr><td><strong>ORC</strong></td><td>Columnar</td><td>Hive ecosystem, best compression</td></tr>
+  <tr><td><strong>Delta</strong></td><td>Table format (on Parquet)</td><td>ACID transactions, time travel, upserts</td></tr>
+</table>
+
+<h3>Testing for Data Pipelines</h3>
+<ul>
+  <li><strong>pytest fixtures</strong>: <code>function</code>/<code>module</code>/<code>session</code> scope. <code>yield</code> fixtures for setup/teardown. <code>conftest.py</code> for shared fixtures.</li>
+  <li><strong>moto</strong>: Mock AWS services (S3, DynamoDB) — invaluable for data engineering tests.</li>
+  <li><strong>responses</strong>: Mock HTTP requests.</li>
+  <li><strong>freezegun</strong>: Mock datetime for time-dependent pipeline tests.</li>
+  <li><strong>pandera</strong>: DataFrame schema validation — define expected dtypes, value ranges, custom checks.</li>
+  <li><strong>great_expectations</strong>: Declarative data quality assertions.</li>
+</ul>
+
+<h3>Design Patterns for Pipelines</h3>
+<ul>
+  <li><strong>Factory</strong>: Create extractors/loaders based on source type/config.</li>
+  <li><strong>Strategy</strong>: Interchangeable transform logic (full load vs incremental, different validations).</li>
+  <li><strong>Template Method</strong>: Base Pipeline class with abstract <code>extract()</code>, <code>transform()</code>, <code>load()</code>.</li>
+  <li><strong>Metadata-driven</strong>: Schema/transformation rules in YAML/JSON config, not hard-coded.</li>
+  <li><strong>Idempotent loads</strong>: Every run produces same result regardless of repetition. Use MERGE/upsert.</li>
+</ul>
+
+<h3>Production Best Practices</h3>
+<ul>
+  <li><strong>Structured logging</strong>: JSON format with <code>structlog</code>. Include correlation IDs (run_id, task_id).</li>
+  <li><strong>Error handling</strong>: Catch specific exceptions. Dead letter queues for failed records. Circuit breaker (<code>pybreaker</code>) for external services.</li>
+  <li><strong>Dependency management</strong>: <code>uv</code> (Rust-based, fastest) for new projects; <code>poetry</code> for existing. Always use lockfiles.</li>
+  <li><strong>Type hints</strong>: <code>Protocol</code> for interfaces, <code>TypedDict</code> for config shapes. <code>mypy</code>/<code>pyright</code> for static checking.</li>
+  <li><strong>Performance</strong>: Profile first (<code>cProfile</code>, <code>Scalene</code>). Vectorize Pandas ops. <code>lru_cache</code> for expensive pure functions. <code>numba.jit</code> for numerical loops.</li>
+</ul>
+
+<h3>Common Interview Questions</h3>
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>View Python Interview Questions</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <ol>
+      <li><strong>Design a pipeline ingesting from 5 REST APIs with different rate limits.</strong> — asyncio with per-API Semaphores, tenacity retries, dead letter queue for failures, idempotent loads.</li>
+      <li><strong>Process a 100GB file on 8GB RAM machine.</strong> — Generator-based chunked reading, Polars streaming mode, or PyArrow dataset with predicate pushdown.</li>
+      <li><strong>Explain the GIL. When does it matter?</strong> — Matters for CPU-bound threads (use multiprocessing). Doesn't matter for I/O-bound (threading) or single-threaded async.</li>
+      <li><strong>Compare Pandas vs Polars vs DuckDB.</strong> — Pandas: ecosystem. Polars: speed + lazy eval. DuckDB: SQL interface + columnar, zero-copy with Arrow.</li>
+      <li><strong>Write a retry decorator with exponential backoff.</strong> — Know the three-layer pattern, <code>functools.wraps</code>, and exponential delay with jitter.</li>
+      <li><strong>How do you test a pipeline depending on S3, API, and DB?</strong> — moto for S3, responses for API, pytest fixtures with test DB. Mock at boundary, not internals.</li>
+      <li><strong>ETL vs ELT — when choose each?</strong> — ETL: transform before load (sensitive data, schema enforcement). ELT: load raw, transform in warehouse (dbt, SQL) — preferred for cloud DWs.</li>
+    </ol>
+  </div>
+</div>
+</section>
+
+<!-- ================================================================ -->
+<!-- SECTION 8: SCENARIO-BASED -->
+<!-- ================================================================ -->
+<section id="scenarios">
+<h2><span class="icon">&#127919;</span> Scenario-Based Questions</h2>
+
+<h3>Architecture Design</h3>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>Design a real-time analytics platform for an e-commerce company</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>Requirements</strong>: Real-time order tracking, fraud detection, personalized recommendations.</p>
+    <p><strong>Solution</strong>:</p>
+    <ul>
+      <li><strong>Ingestion</strong>: Application events → Event Hubs (partitioned by customer_id). CDC from order DB via Debezium → Kafka → Event Hubs.</li>
+      <li><strong>Processing</strong>: Spark Structured Streaming on Databricks. Watermarks for late data. Stateful processing for session-level fraud scores.</li>
+      <li><strong>Storage</strong>: Bronze (raw events) → Silver (enriched, deduplicated) → Gold (aggregated metrics) on Delta Lake / ADLS Gen2.</li>
+      <li><strong>Serving</strong>: Gold tables → Synapse serverless SQL for Power BI dashboards. Low-latency → Cosmos DB for API-served recommendations.</li>
+      <li><strong>Orchestration</strong>: Databricks Workflows for streaming jobs. ADF for batch backfill and data quality checks.</li>
+      <li><strong>Governance</strong>: Unity Catalog for access control and lineage. Purview for broader data catalog.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>Migrate an on-prem SQL Server DW to Azure</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>Approach</strong>:</p>
+    <ol>
+      <li><strong>Assess</strong>: Use Azure Migrate + Data Migration Assistant. Identify incompatible features, table sizes, dependencies.</li>
+      <li><strong>Choose target</strong>: Synapse Dedicated Pool (for existing DW patterns) or Databricks Lakehouse (for modernization).</li>
+      <li><strong>Data migration</strong>: ADF with Self-hosted IR for initial full load. Staged Copy via Blob for Synapse. Parallel copy with partitioning for large tables.</li>
+      <li><strong>Schema migration</strong>: Convert to hash-distributed fact tables, replicated dimensions. Adapt stored procedures to Synapse T-SQL or Spark notebooks.</li>
+      <li><strong>Incremental sync</strong>: CDC or Tumbling Window triggers for ongoing replication during cutover period.</li>
+      <li><strong>ETL migration</strong>: SSIS packages → Azure-SSIS IR (lift-and-shift) or refactor to ADF Mapping Data Flows (modernize).</li>
+      <li><strong>Validation</strong>: Row counts, checksum comparisons, business report reconciliation.</li>
+      <li><strong>Cutover</strong>: Dual-run period, then switch applications. DNS/connection string update.</li>
+    </ol>
+  </div>
+</div>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>Handle a data quality incident: duplicate records in production</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>Immediate response</strong>:</p>
+    <ol>
+      <li><strong>Assess impact</strong>: Which tables affected? How many duplicates? Since when? (Delta Lake time travel to find the commit.)</li>
+      <li><strong>Contain</strong>: Pause downstream consumers. Mark affected Gold tables as unreliable.</li>
+      <li><strong>Root cause</strong>: Check pipeline idempotency. Was MERGE used or blind INSERT? Was there a retry that re-processed data?</li>
+      <li><strong>Fix</strong>: Deduplicate with ROW_NUMBER() window function on business key, keeping latest. MERGE to apply clean data.</li>
+      <li><strong>Prevent</strong>: Add deduplication to Silver layer. Add primary key constraints (Delta supports informational constraints). Add Great Expectations checks for uniqueness. Fix pipeline to use MERGE with proper ON clause.</li>
+      <li><strong>Monitor</strong>: Alert on duplicate counts exceeding threshold. Add data quality tests to CI/CD.</li>
+    </ol>
+  </div>
+</div>
+</section>
+
+</div><!-- /content -->
+
+<script>
+// Build sidebar TOC
+const sections = document.querySelectorAll('section');
+const sidebar = document.getElementById('sidebar');
+let tocHtml = '';
+sections.forEach(sec => {
+  const h2 = sec.querySelector('h2');
+  if (!h2) return;
+  tocHtml += `<div class="toc-section"><div class="toc-title">${h2.textContent.trim()}</div>`;
+  sec.querySelectorAll('h3').forEach(h3 => {
+    const id = h3.textContent.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+    h3.id = id;
+    tocHtml += `<a class="toc-item" href="#${id}" data-section="${sec.id}">${h3.textContent}</a>`;
+  });
+  tocHtml += `</div>`;
+});
+sidebar.innerHTML = tocHtml;
+
+// Active TOC tracking
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      document.querySelectorAll('.toc-item').forEach(i => i.classList.remove('active'));
+      const link = document.querySelector(`.toc-item[href="#${entry.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { rootMargin: '-80px 0px -70% 0px' });
+document.querySelectorAll('h3[id]').forEach(h3 => observer.observe(h3));
+
+// Toggle sections
+function toggle(el) {
+  el.classList.toggle('open');
+  el.nextElementSibling.classList.toggle('open');
+}
+</script>
+</body>
+</html>
