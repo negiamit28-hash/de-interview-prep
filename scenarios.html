@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scenario-Based Interview Questions</title>
+<style>
+:root {
+  --bg:#0f172a; --surface:#1e293b; --surface2:#334155;
+  --accent:#3b82f6; --accent2:#8b5cf6; --accent3:#06b6d4;
+  --green:#22c55e; --red:#ef4444; --orange:#f59e0b;
+  --text:#f1f5f9; --text2:#94a3b8; --text3:#64748b;
+  --radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+
+.topbar{background:var(--surface);border-bottom:1px solid var(--surface2);padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;}
+.topbar h1{font-size:18px;font-weight:700;background:linear-gradient(135deg,var(--orange),var(--red));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.topbar a.back{background:var(--surface2);color:var(--text2);padding:8px 16px;border-radius:8px;font-size:13px;transition:all .2s;}
+.topbar a.back:hover{background:var(--accent);color:#fff;text-decoration:none;}
+.topbar .nav-links{display:flex;gap:8px;margin-left:auto;}
+.topbar .nav-links a{background:var(--surface2);color:var(--text2);padding:6px 14px;border-radius:8px;font-size:12px;transition:all .2s;}
+.topbar .nav-links a:hover{background:var(--accent);color:#fff;text-decoration:none;}
+
+.container{max-width:900px;margin:0 auto;padding:32px 24px 80px;}
+.hero{text-align:center;padding:32px 0 24px;}
+.hero h2{font-size:28px;margin-bottom:8px;}
+.hero p{color:var(--text2);font-size:15px;max-width:650px;margin:0 auto;}
+.hero .badge{display:inline-block;background:rgba(245,158,11,.15);color:var(--orange);padding:4px 12px;border-radius:20px;font-size:12px;margin-top:12px;}
+
+section{margin-bottom:40px;scroll-margin-top:70px;}
+h2.section-title{font-size:22px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--surface2);display:flex;align-items:center;gap:10px;}
+h3{font-size:17px;color:var(--accent);margin:20px 0 10px;}
+h4{font-size:14px;color:var(--accent2);margin:14px 0 6px;}
+p{margin-bottom:10px;color:var(--text2);}
+strong{color:var(--text);}
+ul,ol{margin:8px 0 14px 20px;color:var(--text2);}
+li{margin-bottom:5px;line-height:1.6;}
+li strong{color:var(--text);}
+
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;}
+th{background:var(--surface);color:var(--text);text-align:left;padding:8px 12px;border:1px solid var(--surface2);}
+td{padding:8px 12px;border:1px solid var(--surface2);color:var(--text2);}
+
+code{background:var(--surface);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--accent3);font-family:'Cascadia Code',Consolas,monospace;}
+pre{background:var(--surface);border:1px solid var(--surface2);border-radius:var(--radius);padding:14px;overflow-x:auto;margin:10px 0;font-size:12px;line-height:1.6;}
+pre code{background:none;padding:0;color:var(--text2);}
+
+.info-box{background:var(--surface);border:1px solid var(--surface2);border-radius:var(--radius);padding:14px 18px;margin:14px 0;}
+.info-box.tip{border-left:4px solid var(--green);}
+.info-box.warn{border-left:4px solid var(--orange);}
+.info-box.key{border-left:4px solid var(--accent);}
+.info-box .box-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:600;}
+.info-box.tip .box-title{color:var(--green);}
+.info-box.warn .box-title{color:var(--orange);}
+.info-box.key .box-title{color:var(--accent);}
+
+.toggle-section{margin:12px 0;}
+.toggle-header{background:var(--surface);border:1px solid var(--surface2);border-radius:8px;padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:500;transition:all .2s;}
+.toggle-header:hover{border-color:var(--accent);}
+.toggle-header .arrow{transition:transform .2s;color:var(--text3);}
+.toggle-header.open .arrow{transform:rotate(90deg);}
+.toggle-body{display:none;padding:16px;background:var(--surface);border:1px solid var(--surface2);border-top:none;border-radius:0 0 8px 8px;}
+.toggle-body.open{display:block;}
+
+.category-label{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;margin-bottom:12px;font-weight:600;}
+.cat-arch{background:rgba(59,130,246,.15);color:var(--accent);}
+.cat-resume{background:rgba(245,158,11,.15);color:var(--orange);}
+.cat-gap{background:rgba(239,68,68,.15);color:var(--red);}
+
+@media(max-width:768px){.container{padding:16px;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Scenario Questions</h1>
+  <a class="back" href="index.html">&larr; Home</a>
+  <div class="nav-links">
+    <a href="study-material.html">Study Material</a>
+    <a href="focus.html">Focus Mode</a>
+  </div>
+</div>
+
+<div class="container">
+<div class="hero">
+  <h2>Scenario-Based Interview Questions</h2>
+  <p>Real-world problems an interviewer will ask based on your resume and experience. Organized by role and topic.</p>
+  <div class="badge">Tailored for Neha Pandey's resume</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ARCHITECTURE DESIGN -->
+<!-- ============================================================ -->
+<section>
+<h2 class="section-title">&#127919; Architecture Design Scenarios</h2>
+<span class="category-label cat-arch">Generic / Any Company</span>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>Design a real-time analytics platform for an e-commerce company</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>Requirements</strong>: Real-time order tracking, fraud detection, personalized recommendations.</p>
+    <p><strong>Solution</strong>:</p>
+    <ul>
+      <li><strong>Ingestion</strong>: Application events -> Event Hubs (partitioned by customer_id). CDC from order DB via Debezium -> Kafka -> Event Hubs.</li>
+      <li><strong>Processing</strong>: Spark Structured Streaming on Databricks. Watermarks for late data. Stateful processing for session-level fraud scores.</li>
+      <li><strong>Storage</strong>: Bronze (raw events) -> Silver (enriched, deduplicated) -> Gold (aggregated metrics) on Delta Lake / ADLS Gen2.</li>
+      <li><strong>Serving</strong>: Gold tables -> Synapse serverless SQL for Power BI dashboards. Low-latency -> Cosmos DB for API-served recommendations.</li>
+      <li><strong>Orchestration</strong>: Databricks Workflows for streaming jobs. ADF for batch backfill and data quality checks.</li>
+      <li><strong>Governance</strong>: Unity Catalog for access control and lineage. Purview for broader data catalog.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>Migrate an on-prem SQL Server DW to Azure</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <ol>
+      <li><strong>Assess</strong>: Azure Migrate + Data Migration Assistant. Identify incompatible features, table sizes, dependencies.</li>
+      <li><strong>Choose target</strong>: Synapse Dedicated Pool (existing DW patterns) or Databricks Lakehouse (modernization).</li>
+      <li><strong>Data migration</strong>: ADF with Self-hosted IR for initial full load. Staged Copy via Blob for Synapse. Parallel copy with partitioning.</li>
+      <li><strong>Schema migration</strong>: Hash-distributed facts, replicated dimensions. Adapt stored procedures to Synapse T-SQL or Spark.</li>
+      <li><strong>Incremental sync</strong>: CDC or Tumbling Window triggers during cutover.</li>
+      <li><strong>ETL migration</strong>: SSIS -> Azure-SSIS IR (lift-and-shift) or ADF Mapping Data Flows (modernize).</li>
+      <li><strong>Validation</strong>: Row counts, checksums, business report reconciliation.</li>
+      <li><strong>Cutover</strong>: Dual-run period, then switch. DNS/connection string update.</li>
+    </ol>
+  </div>
+</div>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>Handle a data quality incident: duplicate records in production</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <ol>
+      <li><strong>Assess impact</strong>: Which tables? How many? Since when? (Delta time travel to find the commit.)</li>
+      <li><strong>Contain</strong>: Pause downstream consumers. Mark Gold tables as unreliable.</li>
+      <li><strong>Root cause</strong>: Check idempotency. MERGE or blind INSERT? Retry re-processed data?</li>
+      <li><strong>Fix</strong>: Deduplicate with ROW_NUMBER() on business key, keep latest. MERGE to apply clean data.</li>
+      <li><strong>Prevent</strong>: Dedup in Silver layer. Primary key constraints. Great Expectations checks. Fix pipeline to use MERGE.</li>
+      <li><strong>Monitor</strong>: Alert on duplicate count threshold. Data quality tests in CI/CD.</li>
+    </ol>
+  </div>
+</div>
+</section>
+
+<!-- ============================================================ -->
+<!-- METLIFE -->
+<!-- ============================================================ -->
+<section>
+<h2 class="section-title">&#128188; MetLife Scenarios (2022-Present)</h2>
+<span class="category-label cat-resume">Resume-Based</span>
+
+<h3>PySpark + 20 Sources</h3>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"You ingest from 20+ sources. One sends malformed JSON. How do you prevent it from breaking the entire pipeline?"</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>Why they ask</strong>: Tests defensive programming and fault isolation.</p>
+    <ol>
+      <li><strong>PERMISSIVE mode</strong>: <code>spark.read.option('mode','PERMISSIVE').option('columnNameOfCorruptRecord','_corrupt_record')</code></li>
+      <li><strong>Quarantine pattern</strong>: Route <code>_corrupt_record IS NOT NULL</code> to a quarantine Delta table. Alert on count.</li>
+      <li><strong>Source isolation</strong>: Each source = separate pipeline stage. One failure doesn't cascade.</li>
+      <li><strong>Schema enforcement</strong>: Define <code>StructType</code> explicitly, don't rely on inference.</li>
+      <li><strong>Monitoring</strong>: Track quarantine counts by source per day. Spike = alert.</li>
+    </ol>
+    <pre><code>schema = StructType([StructField("id", StringType()), ...])
+df = spark.read.schema(schema) \
+    .option("mode", "PERMISSIVE") \
+    .option("columnNameOfCorruptRecord", "_corrupt") \
+    .json("abfss://raw@adls.dfs.core.windows.net/source1/")
+
+good = df.filter(col("_corrupt").isNull()).drop("_corrupt")
+bad = df.filter(col("_corrupt").isNotNull())
+bad.write.mode("append").format("delta").save("/quarantine/source1/")</code></pre>
+  </div>
+</div>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"Walk me through accumulators, broadcast variables, multi-level caching — when do you use each?"</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>Why they ask</strong>: Your resume lists these — they'll test depth.</p>
+    <table>
+      <tr><th>Technique</th><th>When to Use</th><th>When NOT to Use</th></tr>
+      <tr><td><strong>Broadcast variables</strong></td><td>Small lookups (&lt;200MB) in joins/maps</td><td>Large tables (OOM), frequently updated data</td></tr>
+      <tr><td><strong>Accumulators</strong></td><td>Counting events/errors across tasks</td><td>Logic control — can double-count on task retry</td></tr>
+      <tr><td><strong>MEMORY_AND_DISK</strong></td><td>DataFrame used in 2+ downstream actions</td><td>DataFrames used only once</td></tr>
+      <tr><td><strong>MEMORY_ONLY</strong></td><td>Small, frequently accessed data</td><td>Large DFs — eviction causes full recompute</td></tr>
+      <tr><td><strong>DISK_ONLY</strong></td><td>Very large DFs that don't fit in memory</td><td>Performance-critical hot paths</td></tr>
+    </table>
+    <div class="info-box warn"><div class="box-title">Pitfall</div><p>Accumulator values in transforms (map, filter) may double-count on retry. Only read after an action completes.</p></div>
+  </div>
+</div>
+
+<h3>Event Hub + ADF</h3>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"You reduced ADF ingestion time by 50%. Walk me through exactly what you changed."</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>Why they ask</strong>: Verifying your resume metric is real. Have concrete numbers ready.</p>
+    <ol>
+      <li><strong>DIU tuning</strong>: Override Auto to 32-64 DIUs for large files.</li>
+      <li><strong>Parallel copy</strong>: <code>parallelCopies</code> to match source partitions.</li>
+      <li><strong>Partition-aware copy</strong>: Dynamic range partitioning for large tables.</li>
+      <li><strong>Staged copy</strong>: Blob + PolyBase is 3-5x faster for Synapse.</li>
+      <li><strong>Pipeline parallelism</strong>: ForEach for independent sources, not sequential.</li>
+      <li><strong>TTL on IR</strong>: Eliminate Managed VNet cold start between activities.</li>
+      <li><strong>Compression</strong>: Ingest gzipped files — smaller transfer.</li>
+    </ol>
+    <div class="info-box tip"><div class="box-title">Interview Tip</div><p>"We had 20 sources running sequentially. I parallelized them in ForEach, increased DIUs from auto (4) to 32, and enabled staged copy for Synapse. Wall-clock time went from 4 hours to under 2." Specific numbers = credible.</p></div>
+  </div>
+</div>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"Event Hub has at-least-once delivery. How did you handle duplicates in ADLS?"</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <ul>
+      <li><strong>Consumer</strong>: Enable checkpointing (offset tracking in Blob).</li>
+      <li><strong>Bronze</strong>: Accept duplicates (append-only, raw fidelity).</li>
+      <li><strong>Silver</strong>: Delta MERGE on composite key (business_key + event_id).</li>
+      <li><strong>Streaming</strong>: <code>dropDuplicatesWithinWatermark("event_id")</code> for bounded-state dedup.</li>
+    </ul>
+    <pre><code>MERGE INTO silver.events t
+USING bronze_batch s
+ON t.event_id = s.event_id AND t.business_key = s.business_key
+WHEN NOT MATCHED THEN INSERT *</code></pre>
+  </div>
+</div>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"Your PySpark job uses multi-level caching. After adding a 4th join, executors OOM. What happened?"</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>Root cause</strong>: Cached DataFrames + 4th join's shuffle data exceeded executor memory. Spark's unified memory splits between storage (cache) and execution (shuffle). Over-caching squeezes execution.</p>
+    <p><strong>Fix</strong>:</p>
+    <ol>
+      <li><code>df.unpersist()</code> after last use of each cached DataFrame.</li>
+      <li>Cache only DataFrames reused in 2+ actions.</li>
+      <li>Switch large caches to DISK_ONLY.</li>
+      <li>Tune <code>spark.memory.storageFraction</code> (default 0.5) — lower it to give execution more room.</li>
+      <li>Check if the 4th join introduces skew amplifying memory pressure.</li>
+    </ol>
+  </div>
+</div>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"You implemented Dimensional Modelling for OLAP. A customer moved states — how does your Star Schema handle historical queries?"</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>SCD Type 2</strong>: Two rows in customer dimension with effective dates.</p>
+    <pre><code>-- Customer moved from NY to NJ on 2025-07-01
+dim_customer:
+  customer_sk=101, customer_id='C001', state='NY',
+    effective_date='2020-01-01', end_date='2025-06-30', is_current=0
+
+  customer_sk=102, customer_id='C001', state='NJ',
+    effective_date='2025-07-01', end_date='9999-12-31', is_current=1
+
+-- Last year's claims join to sk=101 (NY)
+-- Current claims join to sk=102 (NJ)
+-- Fact table uses surrogate key, not natural key</code></pre>
+    <p>Requires <strong>surrogate keys</strong> since natural key (customer_id) now has multiple rows. Fact table's FK points to the correct version based on claim date.</p>
+  </div>
+</div>
+</section>
+
+<!-- ============================================================ -->
+<!-- ACCENTURE -->
+<!-- ============================================================ -->
+<section>
+<h2 class="section-title">&#128188; Accenture Scenarios (2019-2022)</h2>
+<span class="category-label cat-resume">Resume-Based</span>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"You built Kafka streaming pipelines. How did you ensure exactly-once semantics end-to-end?"</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>Three components required</strong>:</p>
+    <ol>
+      <li><strong>Source (Kafka)</strong>: Replayable — consumer tracks offsets.</li>
+      <li><strong>Engine (Spark Structured Streaming)</strong>: Checkpoint directory tracks committed offsets + state per micro-batch.</li>
+      <li><strong>Sink (Delta Lake)</strong>: Idempotent — transaction log prevents duplicate writes.</li>
+    </ol>
+    <pre><code>df = spark.readStream.format("kafka") \
+    .option("kafka.bootstrap.servers", "broker:9092") \
+    .option("subscribe", "claims-topic") \
+    .load()
+
+df.writeStream.format("delta") \
+    .option("checkpointLocation", "/checkpoints/claims/") \
+    .outputMode("append") \
+    .trigger(processingTime="30 seconds") \
+    .start("/silver/claims/")</code></pre>
+    <div class="info-box key"><div class="box-title">Key Point</div><p>"Exactly-once" = "effectively-once". Messages may be delivered multiple times, but the effect is applied once.</p></div>
+  </div>
+</div>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"Your Kafka consumer lag is increasing. Systematic troubleshooting?"</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <ol>
+      <li>Check lag <strong>per partition</strong> — is it one or all?</li>
+      <li>Profile processing: CPU-bound? I/O-bound? Sink bottleneck?</li>
+      <li>Optimize transforms (reduce serialization, efficient formats).</li>
+      <li>Scale consumers up to <strong>partition count</strong> (max parallelism = partition count).</li>
+      <li>Batch sink writes, use async I/O for ADLS.</li>
+      <li>If partitions maxed, increase count (triggers rebalance).</li>
+      <li>Implement backpressure: <code>maxOffsetsPerTrigger</code> in Spark.</li>
+    </ol>
+  </div>
+</div>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"Autoloader with 1000s of small files — performance degrades. Fix?"</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <ul>
+      <li>Switch from <strong>directory listing</strong> to <strong>file notification mode</strong> (Event Grid) — instant detection.</li>
+      <li>Set <code>maxFilesPerTrigger</code> to control batch size.</li>
+      <li>Schedule <code>OPTIMIZE</code> on Delta tables to compact small files.</li>
+      <li>Enable <code>autoCompact</code> and <code>optimizedWrite</code> table properties.</li>
+    </ul>
+    <pre><code># Autoloader with file notification
+df = spark.readStream.format("cloudFiles") \
+    .option("cloudFiles.format", "json") \
+    .option("cloudFiles.useNotifications", "true") \
+    .option("cloudFiles.maxFilesPerTrigger", 1000) \
+    .load("abfss://raw@adls.dfs.core.windows.net/source/")</code></pre>
+  </div>
+</div>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"You automated Databricks jobs via REST APIs. Walk through the automation and failure handling."</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <ol>
+      <li><code>POST /api/2.1/jobs/create</code> — define notebook, cluster, schedule.</li>
+      <li><code>POST /api/2.1/jobs/run-now</code> — trigger with parameter overrides.</li>
+      <li><code>GET /api/2.1/jobs/runs/get?run_id=xxx</code> — poll until TERMINATED.</li>
+      <li>On FAILED: capture <code>state.state_message</code>, auto-rerun with <code>/runs/repair</code>, alert.</li>
+      <li><code>POST /api/2.1/jobs/runs/delete</code> — cleanup old runs.</li>
+    </ol>
+    <p><strong>Modern approach</strong>: Databricks Asset Bundles (DABs) — YAML definitions + <code>databricks bundle deploy</code>. Infrastructure-as-code, version-controlled, CI/CD integrated.</p>
+  </div>
+</div>
+</section>
+
+<!-- ============================================================ -->
+<!-- COGNIZANT -->
+<!-- ============================================================ -->
+<section>
+<h2 class="section-title">&#128188; Cognizant Scenarios (2016-2018)</h2>
+<span class="category-label cat-resume">Resume-Based</span>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"Walk me through the Netezza-to-Azure migration. What were the biggest challenges?"</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>Approach</strong>:</p>
+    <ol>
+      <li><strong>Assessment</strong>: Inventory tables, row counts, data types. Map Netezza types (NCHAR, BYTEINT) to Azure equivalents.</li>
+      <li><strong>Schema</strong>: Netezza distribution keys -> Synapse hash distribution. Zone maps -> columnstore indexes.</li>
+      <li><strong>Data</strong>: ADF + Self-hosted IR. Partition large tables for parallel copy. Blob staging -> PolyBase load.</li>
+      <li><strong>Logic</strong>: NZPLSQL -> T-SQL or PySpark. U-SQL for intermediate transforms (deprecated now).</li>
+      <li><strong>Validation</strong>: Row counts, checksums, sample data comparison, business report validation.</li>
+    </ol>
+    <p><strong>Challenges</strong>:</p>
+    <ul>
+      <li>Data type mismatches (NUMERIC precision differs)</li>
+      <li>Performance regression (zone map queries need different indexing)</li>
+      <li>Character encoding (Latin-1 vs UTF-8)</li>
+      <li>Network bandwidth for multi-TB migrations</li>
+    </ul>
+  </div>
+</div>
+</section>
+
+<!-- ============================================================ -->
+<!-- INFOSYS -->
+<!-- ============================================================ -->
+<section>
+<h2 class="section-title">&#128188; Infosys Scenarios (2018-2019)</h2>
+<span class="category-label cat-resume">Resume-Based</span>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"You designed Star Schema models. Walk me through a real example from insurance/financial domain."</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <pre><code>-- Fact: Insurance Claims
+CREATE TABLE fact_claims (
+    claim_sk       BIGINT,          -- surrogate key
+    date_sk        INT,             -- FK to dim_date
+    customer_sk    INT,             -- FK to dim_customer (SCD Type 2)
+    policy_sk      INT,             -- FK to dim_policy
+    provider_sk    INT,             -- FK to dim_provider
+    claim_amount   DECIMAL(18,2),   -- measure
+    paid_amount    DECIMAL(18,2),   -- measure
+    claim_count    INT DEFAULT 1,   -- for aggregation
+    claim_number   VARCHAR(20)      -- degenerate dimension
+);
+
+-- Dimension: Customer (SCD Type 2)
+CREATE TABLE dim_customer (
+    customer_sk    INT IDENTITY,
+    customer_id    VARCHAR(20),     -- business key
+    name           VARCHAR(100),
+    state          VARCHAR(2),
+    effective_date DATE,
+    end_date       DATE,            -- 9999-12-31 for current
+    is_current     BIT
+);</code></pre>
+    <p><strong>Key design decisions</strong>:</p>
+    <ul>
+      <li><strong>Grain</strong>: One row per claim (transaction fact). Declare grain first.</li>
+      <li><strong>SCD Type 2 on customer</strong>: Address/plan/status changes matter for analytics.</li>
+      <li><strong>Degenerate dimension</strong>: claim_number in fact (no separate dim).</li>
+      <li><strong>Conformed dimensions</strong>: dim_date, dim_customer shared across fact tables.</li>
+    </ul>
+  </div>
+</div>
+</section>
+
+<!-- ============================================================ -->
+<!-- GAP QUESTIONS -->
+<!-- ============================================================ -->
+<section>
+<h2 class="section-title">&#9888;&#65039; Resume Gap Questions</h2>
+<span class="category-label cat-gap">Prepare for These</span>
+<p>Interviewers will notice what's <strong>not</strong> on your resume and probe these areas.</p>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"Your resume doesn't mention Delta Lake, Unity Catalog, or CI/CD for ADF. Are you familiar?"</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>Strategy: Be honest, show awareness, pivot to related experience.</strong></p>
+    <ul>
+      <li><strong>Delta Lake</strong>: "We used Parquet on ADLS. I understand Delta's value — ACID, OPTIMIZE for compaction, MERGE for upserts. I've worked with these in development environments."</li>
+      <li><strong>Unity Catalog</strong>: "We used workspace-level ACLs. I know UC provides catalog.schema.table namespace, centralized GRANT/REVOKE, and automatic lineage. I understand the migration path."</li>
+      <li><strong>ADF CI/CD</strong>: "We managed multi-environment deployments. I understand Git -> ARM templates -> CI/CD with parameterized linked services. I used PowerShell deployment scripts at Cognizant."</li>
+    </ul>
+    <div class="info-box tip"><div class="box-title">Golden Rule</div><p>Never bluff. "I haven't implemented X in production, but I understand the concepts and have worked with Y which is related" is always better than fake depth.</p></div>
+  </div>
+</div>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"ADLA and U-SQL are retired. How would you modernize those workloads?"</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <ul>
+      <li>U-SQL queries -> <strong>Spark SQL / PySpark</strong> on Databricks. C# extensibility -> PySpark UDFs.</li>
+      <li>ADLA compute -> <strong>Databricks serverless</strong> or <strong>Synapse Serverless SQL</strong> (OPENROWSET).</li>
+      <li>ADLA jobs -> <strong>Databricks Workflows</strong> or ADF + Databricks notebook activities.</li>
+      <li>PowerShell deployment -> <strong>Databricks Asset Bundles</strong> or Terraform.</li>
+    </ul>
+    <p>"My ADLA experience gave me strong serverless query-over-files fundamentals. The modern equivalent is Databricks or Synapse Serverless — same concept, better performance."</p>
+  </div>
+</div>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"You have AZ-900 and DP-900 certifications. Have you considered DP-203 (Data Engineering Associate)?"</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>Good answer</strong>: "Yes, DP-203 is on my roadmap. My hands-on experience with ADF, Databricks, ADLS, and Event Hub covers the core exam topics. I plan to certify to validate that experience formally."</p>
+    <div class="info-box key"><div class="box-title">DP-203 Topics</div>
+    <p>Design and implement data storage (25-30%), data processing (25-30%), data security and governance (20-25%), monitor and optimize (15-20%). Heavy on Synapse, Databricks, ADF, ADLS — all in your experience.</p></div>
+  </div>
+</div>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"Compliance audit: who accessed PII data in the last 90 days? Prove source-to-report lineage."</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p>Multi-layer approach (common for insurance companies):</p>
+    <ol>
+      <li><strong>ADLS diagnostic logs</strong> -> Log Analytics for who-read-what-when.</li>
+      <li><strong>Unity Catalog lineage</strong> for table-to-table data flow tracking.</li>
+      <li><strong>ADF Monitor</strong> for pipeline-level data flow.</li>
+      <li><strong>Databricks audit logs</strong> for notebook/query access.</li>
+      <li><strong>PII protection</strong>: Column-level ACLs, dynamic views, sensitive column tagging in catalog.</li>
+    </ol>
+  </div>
+</div>
+</section>
+
+</div>
+
+<script>
+function toggle(el) {
+  el.classList.toggle('open');
+  el.nextElementSibling.classList.toggle('open');
+}
+</script>
+</body>
+</html>

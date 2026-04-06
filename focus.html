@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Focus Mode - Weak Area Study</title>
+<style>
+:root {
+  --bg:#0f172a; --surface:#1e293b; --surface2:#334155;
+  --accent:#3b82f6; --accent2:#8b5cf6; --accent3:#06b6d4;
+  --green:#22c55e; --red:#ef4444; --orange:#f59e0b;
+  --text:#f1f5f9; --text2:#94a3b8; --text3:#64748b;
+  --radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+
+.topbar{background:var(--surface);border-bottom:1px solid var(--surface2);padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;}
+.topbar h1{font-size:18px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.topbar a.back{background:var(--surface2);color:var(--text2);padding:8px 16px;border-radius:8px;font-size:13px;transition:all .2s;}
+.topbar a.back:hover{background:var(--accent);color:#fff;text-decoration:none;}
+
+.container{max-width:900px;margin:0 auto;padding:32px 24px;}
+.hidden{display:none !important;}
+
+/* TOPIC SELECTOR */
+.selector-section{text-align:center;padding:40px 0 20px;}
+.selector-section h2{font-size:28px;margin-bottom:8px;}
+.selector-section p{color:var(--text2);margin-bottom:32px;font-size:15px;}
+
+.topic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-bottom:32px;}
+.topic-chip{background:var(--surface);border:2px solid var(--surface2);border-radius:var(--radius);padding:16px 20px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px;}
+.topic-chip:hover{border-color:var(--accent);background:rgba(59,130,246,.05);}
+.topic-chip.selected{border-color:var(--accent);background:rgba(59,130,246,.12);}
+.topic-chip .icon{font-size:24px;flex-shrink:0;}
+.topic-chip .info{text-align:left;}
+.topic-chip .info h4{font-size:14px;margin-bottom:2px;}
+.topic-chip .info p{font-size:11px;color:var(--text3);margin:0;}
+.topic-chip .check{margin-left:auto;width:24px;height:24px;border:2px solid var(--surface2);border-radius:6px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;font-size:14px;}
+.topic-chip.selected .check{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+.btn{background:var(--accent);color:#fff;border:none;padding:12px 32px;border-radius:8px;cursor:pointer;font-size:15px;font-weight:600;transition:all .2s;}
+.btn:hover{opacity:.9;transform:translateY(-1px);}
+.btn:disabled{opacity:.3;cursor:not-allowed;transform:none;}
+.btn.secondary{background:var(--surface2);color:var(--text2);}
+
+.selected-count{font-size:13px;color:var(--text3);margin-bottom:16px;}
+
+/* STUDY CONTENT */
+.study-area{margin-top:24px;}
+.study-area section{margin-bottom:40px;scroll-margin-top:70px;}
+.study-area h2{font-size:22px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--surface2);display:flex;align-items:center;gap:10px;}
+.study-area h3{font-size:17px;color:var(--accent);margin:20px 0 10px;}
+.study-area h4{font-size:14px;color:var(--accent2);margin:14px 0 6px;}
+.study-area p{margin-bottom:10px;color:var(--text2);line-height:1.7;}
+.study-area strong{color:var(--text);}
+.study-area ul,.study-area ol{margin:8px 0 14px 20px;color:var(--text2);}
+.study-area li{margin-bottom:5px;line-height:1.6;}
+.study-area li strong{color:var(--text);}
+
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;}
+th{background:var(--surface);color:var(--text);text-align:left;padding:8px 12px;border:1px solid var(--surface2);}
+td{padding:8px 12px;border:1px solid var(--surface2);color:var(--text2);}
+
+code{background:var(--surface);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--accent3);font-family:'Cascadia Code',Consolas,monospace;}
+pre{background:var(--surface);border:1px solid var(--surface2);border-radius:var(--radius);padding:14px;overflow-x:auto;margin:10px 0;font-size:12px;line-height:1.6;}
+pre code{background:none;padding:0;color:var(--text2);}
+
+.info-box{background:var(--surface);border:1px solid var(--surface2);border-radius:var(--radius);padding:14px 18px;margin:14px 0;}
+.info-box.tip{border-left:4px solid var(--green);}
+.info-box.warn{border-left:4px solid var(--orange);}
+.info-box.key{border-left:4px solid var(--accent);}
+.info-box .box-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:600;}
+.info-box.tip .box-title{color:var(--green);}
+.info-box.warn .box-title{color:var(--orange);}
+.info-box.key .box-title{color:var(--accent);}
+
+/* PROGRESS BAR */
+.progress-header{display:flex;justify-content:space-between;align-items:center;background:var(--surface);padding:12px 20px;border-radius:var(--radius);margin-bottom:24px;position:sticky;top:52px;z-index:50;border:1px solid var(--surface2);}
+.progress-header .topics-label{font-size:13px;color:var(--text2);}
+.progress-header .topics-pills{display:flex;gap:6px;flex-wrap:wrap;}
+.progress-header .pill{background:var(--accent);color:#fff;padding:3px 10px;border-radius:12px;font-size:11px;}
+
+@media(max-width:768px){
+  .container{padding:16px;}
+  .topic-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Focus Mode</h1>
+  <a class="back" href="index.html">&larr; Back to App</a>
+  <span style="margin-left:auto;font-size:12px;color:var(--text3)">Study your weak areas</span>
+</div>
+
+<div class="container">
+  <!-- SELECTOR -->
+  <div id="selector-section">
+    <div class="selector-section">
+      <h2>What are your weak areas?</h2>
+      <p>Select the topics you want to focus on. We'll filter the study material to only show what you need.</p>
+    </div>
+
+    <div class="topic-grid" id="topic-grid"></div>
+    <div class="selected-count" id="selected-count">0 topics selected</div>
+    <div style="text-align:center;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn" id="start-btn" disabled onclick="startStudy()">Start Focused Study</button>
+      <button class="btn secondary" onclick="selectAll()">Select All</button>
+      <button class="btn secondary" onclick="clearAll()">Clear</button>
+    </div>
+  </div>
+
+  <!-- STUDY CONTENT -->
+  <div id="study-section" class="hidden">
+    <div class="progress-header">
+      <span class="topics-label">Focused on:</span>
+      <div class="topics-pills" id="focused-pills"></div>
+      <button class="btn secondary" style="padding:6px 14px;font-size:12px;margin-left:12px;" onclick="backToSelector()">Change Topics</button>
+    </div>
+    <div class="study-area" id="study-area"></div>
+    <div style="text-align:center;margin:32px 0;">
+      <button class="btn secondary" onclick="backToSelector()">Change Topics</button>
+      <button class="btn" style="margin-left:12px;" onclick="window.open('index.html','_self')">Take Quiz on These Topics</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// TOPIC DATA — each topic has key study content
+// ============================================================
+const topicData = {
+  "Azure Data Factory": {
+    icon: "&#9881;",
+    desc: "Pipelines, IR, CI/CD, performance, security",
+    content: `
+<h3>Core Architecture</h3>
+<ul>
+  <li><strong>Pipelines</strong>: Max 80 activities. Nested via Execute Pipeline.</li>
+  <li><strong>Activities</strong>: Data movement (Copy), transformation (Data Flow, Databricks), control flow (ForEach, If, Switch).</li>
+  <li><strong>Integration Runtimes</strong>: Azure IR (serverless), Self-hosted IR (on-prem), Azure-SSIS IR (SSIS packages).</li>
+  <li><strong>Triggers</strong>: Schedule, Tumbling Window (retry+deps), Event-based (blob), Custom Event.</li>
+</ul>
+
+<h3>Performance Tuning</h3>
+<table>
+  <tr><th>Lever</th><th>What</th><th>When</th></tr>
+  <tr><td><strong>DIU Override</strong></td><td>Manual 4-256 instead of Auto</td><td>Large files (Auto optimizes by count, not size)</td></tr>
+  <tr><td><strong>Parallel Copy</strong></td><td>parallelCopies setting</td><td>Multiple files or partitioned sources</td></tr>
+  <tr><td><strong>Staged Copy</strong></td><td>Blob/ADLS as interim</td><td>PolyBase into Synapse, port restrictions</td></tr>
+  <tr><td><strong>Partition Copy</strong></td><td>Dynamic range partitions</td><td>Large DB tables with partition-friendly columns</td></tr>
+  <tr><td><strong>TTL</strong></td><td>Keep Managed VNet IR warm</td><td>Sequential activities, ForEach loops</td></tr>
+</table>
+
+<h3>CI/CD Best Practices</h3>
+<ul>
+  <li>Only <strong>dev</strong> connects to Git. Test/prod deploy via ARM templates.</li>
+  <li><code>@microsoft/azure-data-factory-utilities</code> for CI-triggered template generation (no manual Publish).</li>
+  <li>Separate Key Vaults per environment, same secret names. Parameterized linked services.</li>
+  <li>Pre-deployment: stop triggers. Post-deployment: restart triggers. Always <strong>Incremental</strong> mode (never Complete).</li>
+</ul>
+
+<h3>Security</h3>
+<ul>
+  <li><strong>Managed Identity</strong>: Recommended for all Azure-native services. No credentials to manage.</li>
+  <li><strong>Managed VNet + Private Endpoints</strong>: Zero-trust, traffic on Microsoft backbone, prevent data exfiltration.</li>
+  <li><strong>Key Vault</strong>: Store secrets, reference from linked services. Separate KV per environment.</li>
+</ul>
+
+<div class="info-box warn">
+  <div class="box-title">2026 Direction</div>
+  <p>Microsoft is migrating customers to <strong>Fabric Data Factory</strong>. ~90% of ADF activities available. Know both ADF and Fabric in interviews.</p>
+</div>
+
+<h3>Key Interview Questions</h3>
+<ol>
+  <li>Design a multi-environment ADF deployment strategy.</li>
+  <li>How do you handle schema drift in Mapping Data Flows?</li>
+  <li>A copy job is slow — walk through troubleshooting.</li>
+  <li>How do you implement incremental loads?</li>
+  <li>Explain the difference between Execute Pipeline and ForEach.</li>
+</ol>
+`
+  },
+
+  "Databricks": {
+    icon: "&#9889;",
+    desc: "Delta Lake, Unity Catalog, clusters, Photon",
+    content: `
+<h3>Delta Lake Essentials</h3>
+<table>
+  <tr><th>Feature</th><th>What It Does</th></tr>
+  <tr><td><strong>ACID Transactions</strong></td><td>Transaction log (_delta_log). Concurrent reads/writes. Optimistic concurrency.</td></tr>
+  <tr><td><strong>Time Travel</strong></td><td><code>SELECT * FROM t VERSION AS OF 5</code>. Audit, rollback, reproducibility.</td></tr>
+  <tr><td><strong>OPTIMIZE</strong></td><td>Compacts small files into ~1GB targets. Run regularly.</td></tr>
+  <tr><td><strong>VACUUM</strong></td><td>Removes old files outside retention (default 7 days). Run after OPTIMIZE.</td></tr>
+  <tr><td><strong>Z-Ordering</strong></td><td>Co-locates data for predicate pushdown on specific columns.</td></tr>
+  <tr><td><strong>Liquid Clustering</strong></td><td>Incremental clustering, no full rewrite. Recommended for new tables.</td></tr>
+</table>
+
+<h3>Cluster Types</h3>
+<ul>
+  <li><strong>Job Clusters</strong>: Auto-created per job, terminated after. Production use. Lower DBU rate.</li>
+  <li><strong>All-Purpose Clusters</strong>: Persistent, interactive development. Higher cost.</li>
+  <li><strong>SQL Warehouses</strong>: Serverless SQL compute for BI queries.</li>
+  <li><strong>Instance Pools</strong>: Pre-warmed VMs for faster cluster startup.</li>
+</ul>
+
+<h3>Unity Catalog</h3>
+<ul>
+  <li><strong>3-level namespace</strong>: catalog.schema.table</li>
+  <li><strong>Access control</strong>: GRANT/REVOKE at catalog, schema, table, column level</li>
+  <li><strong>Automatic lineage</strong>: Track data flow between tables</li>
+  <li><strong>Cross-workspace</strong>: Single governance layer across all workspaces</li>
+</ul>
+
+<h3>Photon Engine</h3>
+<p>C++ native vectorized execution engine. 3-8x faster for SQL, joins, aggregations on Delta. No code changes needed. Available on Photon-enabled cluster types.</p>
+
+<h3>Key Interview Questions</h3>
+<ol>
+  <li>When to use Liquid Clustering vs Z-ordering?</li>
+  <li>Explain Delta Lake ACID — how does the transaction log work?</li>
+  <li>How does Spark handle memory? (Unified memory model)</li>
+  <li>Difference between repartition and coalesce?</li>
+  <li>Design a streaming pipeline for real-time fraud detection.</li>
+</ol>
+`
+  },
+
+  "PySpark": {
+    icon: "&#128293;",
+    desc: "Catalyst, AQE, joins, shuffle, skew",
+    content: `
+<h3>Catalyst Optimizer</h3>
+<ol>
+  <li><strong>Parse</strong> → unresolved logical plan</li>
+  <li><strong>Analyze</strong> → resolve references</li>
+  <li><strong>Rule-based optimization</strong> → predicate pushdown, column pruning, constant folding</li>
+  <li><strong>Cost-based optimization</strong> → generate physical plans, pick cheapest</li>
+</ol>
+<p>This is why DataFrame API and SQL have <strong>identical performance</strong>.</p>
+
+<h3>Adaptive Query Execution (AQE)</h3>
+<ul>
+  <li><strong>Coalesce partitions</strong>: Merge small post-shuffle partitions</li>
+  <li><strong>Switch join strategy</strong>: Sort-merge → broadcast if one side is small at runtime</li>
+  <li><strong>Handle skew</strong>: Split skewed partitions. Default since Spark 3.2.</li>
+</ul>
+
+<h3>Join Optimization</h3>
+<table>
+  <tr><th>Strategy</th><th>When</th><th>How</th></tr>
+  <tr><td><strong>Broadcast Join</strong></td><td>One side fits in memory (&lt;10MB default)</td><td><code>df.join(broadcast(small), key)</code></td></tr>
+  <tr><td><strong>Sort-Merge Join</strong></td><td>Both sides large, pre-sorted</td><td>Default for large-large joins</td></tr>
+  <tr><td><strong>Shuffle Hash Join</strong></td><td>One side smaller but > broadcast threshold</td><td>Hash partition both sides</td></tr>
+</table>
+
+<h3>Data Skew Handling</h3>
+<ol>
+  <li><strong>AQE</strong>: Automatic since Spark 3.2 (splits skewed partitions)</li>
+  <li><strong>Salting</strong>: Add random prefix to hot keys, join on salted key, aggregate to remove salt</li>
+  <li><strong>Broadcast</strong>: If one side is small enough, eliminate shuffle entirely</li>
+  <li><strong>Isolate hot keys</strong>: Process separately, union results</li>
+</ol>
+
+<h3>Memory & Partitioning</h3>
+<ul>
+  <li>Target <strong>128-256MB per partition</strong></li>
+  <li><code>repartition(n)</code>: full shuffle, increase or decrease. <code>coalesce(n)</code>: no shuffle, decrease only.</li>
+  <li>Unified memory: execution (shuffle) + storage (cache) share a pool. Execution can evict storage.</li>
+  <li><code>spark.memory.fraction</code> (0.6 default), <code>spark.memory.storageFraction</code> (0.5 default)</li>
+</ul>
+
+<h3>Key Interview Questions</h3>
+<ol>
+  <li>Your Spark job is slow — how do you diagnose using Spark UI?</li>
+  <li>Explain narrow vs wide transformations.</li>
+  <li>When would you use accumulators vs broadcast variables?</li>
+  <li>How does checkpointing work in Structured Streaming?</li>
+  <li>A join produces data skew — walk through your fix.</li>
+</ol>
+`
+  },
+
+  "SQL": {
+    icon: "&#128450;",
+    desc: "Window functions, MERGE, execution plans, Synapse",
+    content: `
+<h3>Window Functions</h3>
+<pre><code>-- Ranking (for values [10,20,20,30])
+ROW_NUMBER(): 1,2,3,4  -- unique, arbitrary tiebreak
+RANK():       1,2,2,4  -- gaps after ties
+DENSE_RANK(): 1,2,2,3  -- no gaps
+
+-- Running total / moving average
+SUM(revenue) OVER (ORDER BY date ROWS UNBOUNDED PRECEDING)
+AVG(revenue) OVER (ORDER BY date ROWS BETWEEN 6 PRECEDING AND CURRENT ROW)
+
+-- Previous/next row
+LAG(revenue, 1) OVER (ORDER BY date)
+LEAD(revenue, 1) OVER (ORDER BY date)</code></pre>
+
+<h3>MERGE Statement</h3>
+<pre><code>MERGE INTO target t USING source s ON t.id = s.id
+WHEN MATCHED THEN UPDATE SET t.name = s.name
+WHEN NOT MATCHED BY TARGET THEN INSERT (id, name) VALUES (s.id, s.name)
+WHEN NOT MATCHED BY SOURCE THEN DELETE;</code></pre>
+<div class="info-box warn"><div class="box-title">Pitfall</div><p>Deduplicate source first — duplicate join keys cause non-deterministic results.</p></div>
+
+<h3>Synapse Distribution</h3>
+<table>
+  <tr><th>Strategy</th><th>Best For</th></tr>
+  <tr><td><strong>Hash</strong></td><td>Large fact tables. Distribute on join key. Minimizes data movement.</td></tr>
+  <tr><td><strong>Round-robin</strong></td><td>Staging tables. Even spread. Default.</td></tr>
+  <tr><td><strong>Replicate</strong></td><td>Small dimensions (&lt;2GB). Full copy on every node.</td></tr>
+</table>
+
+<h3>Execution Plan Tips</h3>
+<ul>
+  <li>Look for <strong>scans</strong> (bad) vs <strong>seeks</strong> (good), <strong>hash spills</strong>, <strong>sort warnings</strong>.</li>
+  <li>SARGable predicates: <code>WHERE col > 5</code> (good) vs <code>WHERE YEAR(col) = 2026</code> (bad).</li>
+  <li>Columnstore indexes: 10x compression, ideal for analytics (large scans, aggregations).</li>
+  <li>Covering indexes: <code>CREATE INDEX ix ON t(a,b) INCLUDE(c,d)</code> — avoids key lookup.</li>
+</ul>
+
+<h3>Isolation Levels</h3>
+<p>READ UNCOMMITTED → READ COMMITTED (default) → REPEATABLE READ → SERIALIZABLE → SNAPSHOT (row versioning, readers don't block writers).</p>
+`
+  },
+
+  "Data Modeling": {
+    icon: "&#128202;",
+    desc: "Star/snowflake, SCD, Data Vault, medallion",
+    content: `
+<h3>Star vs Snowflake Schema</h3>
+<ul>
+  <li><strong>Star</strong>: Denormalized dimensions, fewer joins, simpler queries. Preferred in modern cloud DWs.</li>
+  <li><strong>Snowflake</strong>: Normalized dimensions, less redundancy, more joins. Rarely preferred now.</li>
+</ul>
+
+<h3>SCD Types</h3>
+<table>
+  <tr><th>Type</th><th>Method</th><th>History</th></tr>
+  <tr><td>Type 1</td><td>Overwrite</td><td>None</td></tr>
+  <tr><td>Type 2</td><td>New row + effective dates + is_current</td><td>Full (needs surrogate keys)</td></tr>
+  <tr><td>Type 3</td><td>Add column for previous value</td><td>One prior only</td></tr>
+</table>
+
+<h3>Data Vault 2.0</h3>
+<ul>
+  <li><strong>Hubs</strong>: Business entity keys</li>
+  <li><strong>Links</strong>: Relationships between hubs</li>
+  <li><strong>Satellites</strong>: Descriptive attributes + full history</li>
+  <li>Insert-only, parallel-loadable, full audit trail.</li>
+</ul>
+
+<h3>Medallion Architecture</h3>
+<ul>
+  <li><strong>Bronze</strong>: Raw ingestion, append-only, schema-on-read</li>
+  <li><strong>Silver</strong>: Cleaned, deduplicated, standardized, schema-enforced</li>
+  <li><strong>Gold</strong>: Business-ready aggregations, star schemas, feature tables</li>
+</ul>
+
+<h3>Advanced Concepts</h3>
+<ul>
+  <li><strong>Surrogate keys</strong>: Auto-generated IDs for DW. Enable SCD Type 2. Stable join keys.</li>
+  <li><strong>Degenerate dimensions</strong>: Invoice/order numbers stored in fact (no separate dim).</li>
+  <li><strong>Junk dimensions</strong>: Combine low-cardinality flags into one dim.</li>
+  <li><strong>Bridge tables</strong>: Handle many-to-many between fact and dimension.</li>
+  <li><strong>Late-arriving facts/dims</strong>: Use default members, update when data arrives.</li>
+</ul>
+`
+  },
+
+  "Azure Data Lake Storage": {
+    icon: "&#128193;",
+    desc: "ADLS Gen2, tiers, security, file sizing",
+    content: `
+<h3>Architecture</h3>
+<ul>
+  <li>ADLS Gen2 = Blob Storage + <strong>Hierarchical Namespace (HNS)</strong></li>
+  <li>Atomic directory ops, POSIX ACLs, ABFS driver: <code>abfss://container@account.dfs.core.windows.net/</code></li>
+</ul>
+
+<h3>Storage Tiers</h3>
+<table>
+  <tr><th>Tier</th><th>Best For</th><th>Min Retention</th></tr>
+  <tr><td>Hot</td><td>Frequently accessed</td><td>None</td></tr>
+  <tr><td>Cool</td><td>Infrequent (&gt;30 days)</td><td>30 days</td></tr>
+  <tr><td>Cold</td><td>Rarely accessed</td><td>90 days</td></tr>
+  <tr><td>Archive</td><td>Compliance, backup (hours to rehydrate)</td><td>180 days</td></tr>
+</table>
+
+<h3>Security: RBAC vs ACLs</h3>
+<ul>
+  <li><strong>RBAC</strong>: Container/account-level. Evaluated first — if granted, ACLs skipped.</li>
+  <li><strong>ACLs</strong>: Path-level, POSIX-style (Access + Default ACLs). Fine-grained.</li>
+  <li>Cannot use ACLs to <strong>restrict</strong> RBAC-granted access.</li>
+  <li>Best: RBAC for service principals, ACLs for user-level folder permissions.</li>
+</ul>
+
+<h3>Performance</h3>
+<ul>
+  <li>File size: <strong>256MB-1GB</strong>. Avoid small files problem.</li>
+  <li>Folder: Partition by date. Hive-style <code>year=2026/month=04/</code>.</li>
+  <li>Format: Parquet with row groups ~128MB. Delta Lake for ACID.</li>
+  <li>Compact small files with OPTIMIZE or ADF.</li>
+</ul>
+`
+  },
+
+  "Stream Processing": {
+    icon: "&#127754;",
+    desc: "Lambda/Kappa, windowing, watermarks, CDC",
+    content: `
+<h3>Lambda vs Kappa</h3>
+<table>
+  <tr><th></th><th>Lambda</th><th>Kappa</th></tr>
+  <tr><td>Layers</td><td>Batch + Speed + Serving</td><td>Single stream</td></tr>
+  <tr><td>Codebases</td><td>Two</td><td>One</td></tr>
+  <tr><td>Reprocess</td><td>Re-run batch</td><td>Replay log</td></tr>
+</table>
+
+<h3>Windowing</h3>
+<ul>
+  <li><strong>Tumbling</strong>: Fixed, non-overlapping (every 5 min)</li>
+  <li><strong>Hopping</strong>: Fixed, overlapping (10-min window, 5-min hop)</li>
+  <li><strong>Sliding</strong>: Triggered by events entering/leaving</li>
+  <li><strong>Session</strong>: Groups events within timeout gap</li>
+</ul>
+
+<h3>Watermarks & Late Data</h3>
+<pre><code>df.withWatermark("eventTime", "10 minutes")
+  .groupBy(window("eventTime", "5 minutes"))
+  .count()</code></pre>
+<p>Late data within watermark updates results. Beyond watermark = dropped. State for expired windows cleaned up.</p>
+
+<h3>CDC (Change Data Capture)</h3>
+<ul>
+  <li>Reads database transaction logs for INSERT/UPDATE/DELETE</li>
+  <li>Tools: Debezium, Azure SQL CDC, Oracle GoldenGate</li>
+  <li>Pattern: Source DB → CDC → Kafka → Spark Streaming → Delta Lake (MERGE)</li>
+</ul>
+
+<h3>Exactly-Once</h3>
+<p>Requires: replayable source (Kafka) + checkpointed engine (Spark) + idempotent sink (Delta). "Effectively-once" — effect applied once even if message delivered multiple times.</p>
+`
+  },
+
+  "Python": {
+    icon: "&#128013;",
+    desc: "Generators, concurrency, Polars, testing",
+    content: `
+<h3>Concurrency</h3>
+<table>
+  <tr><th>Model</th><th>Best For</th><th>GIL Impact</th></tr>
+  <tr><td>threading</td><td>I/O-bound</td><td>Released during I/O</td></tr>
+  <tr><td>multiprocessing</td><td>CPU-bound</td><td>Separate processes</td></tr>
+  <tr><td>asyncio</td><td>High-concurrency I/O</td><td>Single-threaded event loop</td></tr>
+</table>
+<p>Python 3.13+: Optional no-GIL build (PEP 703).</p>
+
+<h3>Pandas vs Polars</h3>
+<ul>
+  <li><strong>Polars</strong>: 5-10x faster, lazy evaluation, native multithreading, no index, Rust-based.</li>
+  <li><strong>Pandas</strong>: Larger ecosystem, Arrow backend in 2.0+. Use for smaller data / ecosystem compat.</li>
+</ul>
+
+<h3>Generators for Large Data</h3>
+<ul>
+  <li><code>pd.read_csv(chunksize=100000)</code> returns iterator</li>
+  <li>Chain generators: <code>read()</code> → <code>filter()</code> → <code>transform()</code> — memory stays flat</li>
+  <li><code>yield from</code> for sub-generators</li>
+</ul>
+
+<h3>Testing</h3>
+<ul>
+  <li><strong>pytest</strong>: fixtures (scope, yield, conftest), parametrize</li>
+  <li><strong>moto</strong>: Mock AWS (S3, DynamoDB)</li>
+  <li><strong>pandera</strong>: DataFrame schema validation</li>
+  <li><strong>great_expectations</strong>: Declarative data quality checks</li>
+</ul>
+
+<h3>Design Patterns</h3>
+<ul>
+  <li>Factory (create extractors by config), Strategy (swap transform logic), Template Method (base pipeline class)</li>
+  <li>Metadata-driven ingestion from YAML/JSON config</li>
+  <li>Idempotent loads (MERGE/upsert, not blind INSERT)</li>
+</ul>
+`
+  },
+
+  "Scenarios": {
+    icon: "&#128188;",
+    desc: "Resume-based real-world scenarios",
+    content: `
+<h3>MetLife Scenarios</h3>
+<ul>
+  <li><strong>20 sources, bad JSON</strong>: PERMISSIVE mode + quarantine table + source isolation + alerting.</li>
+  <li><strong>ADF 50% speedup</strong>: DIU tuning, parallel copy, staged copy, pipeline parallelism, TTL.</li>
+  <li><strong>Event Hub duplicates</strong>: Checkpointing + Bronze accepts dupes + Silver MERGE dedup.</li>
+  <li><strong>Spark caching OOM</strong>: unpersist() after use, DISK_ONLY for large DFs, tune storageFraction.</li>
+</ul>
+
+<h3>Accenture Scenarios</h3>
+<ul>
+  <li><strong>Kafka consumer lag</strong>: Diagnose (CPU/IO/sink?), scale consumers to partition count, batch writes, backpressure.</li>
+  <li><strong>Autoloader small files</strong>: Notification mode (Event Grid), maxFilesPerTrigger, OPTIMIZE + autoCompact.</li>
+  <li><strong>Exactly-once from Kafka</strong>: Replayable source + checkpoint + idempotent Delta sink.</li>
+</ul>
+
+<h3>Cognizant Scenarios</h3>
+<ul>
+  <li><strong>Netezza migration (2B rows)</strong>: Self-hosted IR, partition-aware parallel copy, staged copy, incremental CDC sync, row count validation.</li>
+  <li><strong>ADLA/U-SQL deprecated</strong>: Replace with Databricks + PySpark or Synapse Serverless SQL.</li>
+</ul>
+
+<h3>Gap Questions</h3>
+<ul>
+  <li><strong>No Delta Lake on resume</strong>: Acknowledge, show understanding of ACID/OPTIMIZE/MERGE, pivot to related Parquet experience.</li>
+  <li><strong>No Unity Catalog</strong>: Know the 3-level namespace, GRANT/REVOKE, and migration from workspace ACLs.</li>
+  <li><strong>No ADF CI/CD</strong>: Understand Git → ARM → CI/CD pipeline pattern. Mention PowerShell deployment experience.</li>
+</ul>
+`
+  }
+};
+
+// ============================================================
+// STATE
+// ============================================================
+let selectedTopics = new Set();
+
+// ============================================================
+// RENDER
+// ============================================================
+function renderTopicGrid() {
+  const grid = document.getElementById('topic-grid');
+  grid.innerHTML = Object.entries(topicData).map(([name, data]) => {
+    const sel = selectedTopics.has(name) ? 'selected' : '';
+    return `<div class="topic-chip ${sel}" onclick="toggleTopic('${name}')">
+      <div class="icon">${data.icon}</div>
+      <div class="info"><h4>${name}</h4><p>${data.desc}</p></div>
+      <div class="check">${sel ? '&#10003;' : ''}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('selected-count').textContent = `${selectedTopics.size} topic${selectedTopics.size !== 1 ? 's' : ''} selected`;
+  document.getElementById('start-btn').disabled = selectedTopics.size === 0;
+}
+
+function toggleTopic(name) {
+  if (selectedTopics.has(name)) selectedTopics.delete(name);
+  else selectedTopics.add(name);
+  renderTopicGrid();
+}
+
+function selectAll() {
+  Object.keys(topicData).forEach(k => selectedTopics.add(k));
+  renderTopicGrid();
+}
+
+function clearAll() {
+  selectedTopics.clear();
+  renderTopicGrid();
+}
+
+function startStudy() {
+  if (selectedTopics.size === 0) return;
+  // Save selection
+  localStorage.setItem('de-focus-topics', JSON.stringify([...selectedTopics]));
+  // Render
+  document.getElementById('selector-section').classList.add('hidden');
+  document.getElementById('study-section').classList.remove('hidden');
+
+  const pills = document.getElementById('focused-pills');
+  pills.innerHTML = [...selectedTopics].map(t => `<span class="pill">${t}</span>`).join('');
+
+  const area = document.getElementById('study-area');
+  area.innerHTML = [...selectedTopics].map(name => {
+    const d = topicData[name];
+    return `<section><h2>${d.icon} ${name}</h2>${d.content}</section>`;
+  }).join('');
+}
+
+function backToSelector() {
+  document.getElementById('selector-section').classList.remove('hidden');
+  document.getElementById('study-section').classList.add('hidden');
+}
+
+// Init — restore previous selection if any
+const saved = localStorage.getItem('de-focus-topics');
+if (saved) {
+  try { JSON.parse(saved).forEach(t => { if (topicData[t]) selectedTopics.add(t); }); } catch {}
+}
+renderTopicGrid();
+</script>
+</body>
+</html>
