@@ -810,6 +810,268 @@ WHEN NOT MATCHED BY SOURCE THEN
 </div>
 </section>
 
+<!-- ================================================================ -->
+<!-- SECTION 9: RESUME-TAILORED SCENARIOS -->
+<!-- ================================================================ -->
+<section id="resume-scenarios">
+<h2><span class="icon">&#128188;</span> Resume-Tailored Scenarios</h2>
+<p style="color:var(--accent);margin-bottom:20px;">Based on Neha Pandey's resume — realistic questions an interviewer would ask by reading your experience.</p>
+
+<h3>MetLife: PySpark + 20 Sources</h3>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"You ingest from 20+ sources. One sends malformed JSON. How do you prevent it from breaking the entire pipeline?"</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>Why they ask this</strong>: Tests defensive programming and fault isolation in production pipelines.</p>
+    <p><strong>Answer framework</strong>:</p>
+    <ol>
+      <li><strong>PERMISSIVE mode</strong>: <code>spark.read.option('mode','PERMISSIVE').option('columnNameOfCorruptRecord','_corrupt_record')</code> — captures bad rows instead of failing.</li>
+      <li><strong>Quarantine pattern</strong>: Route records where <code>_corrupt_record IS NOT NULL</code> to a quarantine Delta table. Alert on row count via Azure Monitor.</li>
+      <li><strong>Source isolation</strong>: Each of the 20 sources should be a separate pipeline/stage. One source failure doesn't cascade. Use ADF ForEach or Databricks Workflows with independent tasks.</li>
+      <li><strong>Schema enforcement</strong>: Define expected schema explicitly (<code>StructType</code>) rather than relying on inference. Catches structural changes early.</li>
+      <li><strong>Monitoring</strong>: Track quarantine counts by source per day. Spike = alert to investigate source-side issue.</li>
+    </ol>
+    <pre><code># Example quarantine pattern
+schema = StructType([StructField("id", StringType()), ...])
+df = spark.read.schema(schema) \
+    .option("mode", "PERMISSIVE") \
+    .option("columnNameOfCorruptRecord", "_corrupt") \
+    .json("abfss://raw@adls.dfs.core.windows.net/source1/")
+
+good = df.filter(col("_corrupt").isNull()).drop("_corrupt")
+bad = df.filter(col("_corrupt").isNotNull())
+bad.write.mode("append").format("delta").save("/quarantine/source1/")</code></pre>
+  </div>
+</div>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"You applied Spark optimization — accumulators, broadcast variables, multi-level caching. Walk me through when you'd use each."</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>Why they ask this</strong>: Your resume lists these — they'll test if you truly understand when each is appropriate.</p>
+    <table>
+      <tr><th>Technique</th><th>When to Use</th><th>When NOT to Use</th></tr>
+      <tr><td><strong>Broadcast variables</strong></td><td>Small lookup tables (&lt;200MB) used in joins or map operations across all executors</td><td>Large tables — will OOM the driver. Frequently updated data.</td></tr>
+      <tr><td><strong>Accumulators</strong></td><td>Counting events/errors across tasks (e.g., "how many bad records total?"). Write-only from executors, read on driver.</td><td>As logic control flow — they're only guaranteed accurate in actions, not transforms (can double-count on retry).</td></tr>
+      <tr><td><strong>MEMORY_AND_DISK cache</strong></td><td>DataFrame used in 2+ downstream actions. Avoids re-computation.</td><td>DataFrames used only once — cache overhead > recomputation cost.</td></tr>
+      <tr><td><strong>MEMORY_ONLY cache</strong></td><td>Small, frequently accessed data where speed is critical</td><td>Large DataFrames — eviction causes full recomputation.</td></tr>
+      <tr><td><strong>DISK_ONLY cache</strong></td><td>Very large DataFrames that must be persisted but don't fit in memory</td><td>Performance-critical paths — disk I/O adds latency.</td></tr>
+    </table>
+    <div class="info-box warn">
+      <div class="box-title">Common Pitfall</div>
+      <p>Accumulator values in <strong>transformations</strong> (map, filter) may be counted multiple times if tasks are retried. Only rely on accumulator values read <strong>after an action</strong> (count, collect, write) completes. For critical counts, write to a Delta table instead.</p>
+    </div>
+  </div>
+</div>
+
+<h3>MetLife: Event Hub + ADF</h3>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"You reduced ADF ingestion time by 50%. Walk me through exactly what you changed."</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>Why they ask this</strong>: Your resume claims a specific metric — they'll verify it's real. Have concrete details ready.</p>
+    <p><strong>Credible optimization levers</strong> (use the ones you actually applied):</p>
+    <ol>
+      <li><strong>DIU tuning</strong>: Default Auto may underallocate for large files. Manual override to 32-64 DIUs for large copy activities.</li>
+      <li><strong>Parallel copy</strong>: Set <code>parallelCopies</code> to match source partitions — copies data concurrently.</li>
+      <li><strong>Partition-aware copy</strong>: If source supports it, enable dynamic range partitioning for parallel reads from the same table.</li>
+      <li><strong>Staged copy</strong>: For Synapse sinks, staging via Blob + PolyBase is 3-5x faster than direct insert.</li>
+      <li><strong>Pipeline parallelism</strong>: Independent source extractions run in parallel via ForEach, not sequentially.</li>
+      <li><strong>TTL on IR</strong>: Managed VNet cold start was adding minutes per activity. TTL keeps compute warm.</li>
+      <li><strong>Compression at source</strong>: Ingest compressed files (gzip) — smaller network transfer, decompress on Azure side.</li>
+    </ol>
+    <div class="info-box tip">
+      <div class="box-title">Interview Tip</div>
+      <p>Say something like: "We had 20 sources running sequentially. I parallelized independent sources in ForEach, increased DIUs from auto (4) to 32 for the largest tables, and enabled staged copy for our Synapse loads. Combined, this cut wall-clock time from 4 hours to under 2." Specific numbers make it credible.</p>
+    </div>
+  </div>
+</div>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"Event Hub has at-least-once delivery. You ingested into ADLS via Event Hub. How did you handle duplicates?"</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>Answer</strong>:</p>
+    <ul>
+      <li><strong>Consumer-side</strong>: Enable checkpointing (offset tracking in Azure Blob) so consumers don't re-read on restart.</li>
+      <li><strong>Landing zone</strong>: Bronze layer accepts duplicates (append-only, raw fidelity).</li>
+      <li><strong>Silver layer</strong>: Dedup via Delta Lake MERGE on composite business key + event_id:
+        <pre><code>MERGE INTO silver.events t
+USING bronze_batch s
+ON t.event_id = s.event_id AND t.business_key = s.business_key
+WHEN NOT MATCHED THEN INSERT *</code></pre>
+      </li>
+      <li><strong>Streaming dedup</strong>: If using Structured Streaming, <code>dropDuplicatesWithinWatermark("event_id")</code> for bounded-state dedup.</li>
+    </ul>
+  </div>
+</div>
+
+<h3>Accenture: Kafka + Autoloader</h3>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"You built streaming pipelines from Confluent Kafka. How did you ensure exactly-once semantics end-to-end?"</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>End-to-end exactly-once requires three components</strong>:</p>
+    <ol>
+      <li><strong>Source (Kafka)</strong>: Replayable — consumer tracks offsets, can replay from any point.</li>
+      <li><strong>Processing (Spark Structured Streaming)</strong>: Checkpoint directory on ADLS tracks committed offsets + processing state per micro-batch. On failure, replays from last committed offset.</li>
+      <li><strong>Sink (Delta Lake)</strong>: Idempotent — Delta's transaction log prevents duplicate writes from replayed micro-batches.</li>
+    </ol>
+    <p><strong>Key configs</strong>:</p>
+    <pre><code>df = spark.readStream \
+    .format("kafka") \
+    .option("kafka.bootstrap.servers", "confluent-broker:9092") \
+    .option("subscribe", "claims-topic") \
+    .option("startingOffsets", "latest") \
+    .option("kafka.group.id", "claims-consumer-group") \
+    .load()
+
+df.writeStream \
+    .format("delta") \
+    .option("checkpointLocation", "/checkpoints/claims/") \
+    .outputMode("append") \
+    .trigger(processingTime="30 seconds") \
+    .start("/silver/claims/")</code></pre>
+    <div class="info-box key">
+      <div class="box-title">Key Point</div>
+      <p>"Exactly-once" is really "effectively-once" — messages may be delivered multiple times, but the <strong>effect</strong> (state change) is applied exactly once. The checkpoint + replayable source + idempotent sink is what delivers this guarantee.</p>
+    </div>
+  </div>
+</div>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"You automated Databricks job management via REST APIs. Walk me through the automation and how you handled failures."</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>Databricks Jobs REST API pattern</strong>:</p>
+    <ol>
+      <li><strong>Create/update jobs</strong>: <code>POST /api/2.1/jobs/create</code> — define notebook task, cluster config, schedule.</li>
+      <li><strong>Trigger runs</strong>: <code>POST /api/2.1/jobs/run-now</code> with parameter overrides per environment.</li>
+      <li><strong>Monitor</strong>: <code>GET /api/2.1/jobs/runs/get?run_id=xxx</code> — poll until state is TERMINATED.</li>
+      <li><strong>Handle failures</strong>: Check <code>result_state</code>. If FAILED: (a) capture error message from <code>state.state_message</code>, (b) optionally auto-rerun with <code>POST /api/2.1/jobs/runs/repair</code>, (c) alert via webhook/email.</li>
+      <li><strong>Cleanup</strong>: <code>POST /api/2.1/jobs/runs/delete</code> to remove old run records.</li>
+    </ol>
+    <p><strong>Modern replacement</strong>: Databricks Asset Bundles (DABs) + CI/CD pipelines. Infrastructure-as-code approach using YAML definitions, deployed via <code>databricks bundle deploy</code>. More robust than raw REST API scripts for production.</p>
+  </div>
+</div>
+
+<h3>Cognizant: Netezza Migration</h3>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"Walk me through the Netezza-to-Azure migration. What were the biggest challenges?"</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>Migration approach</strong>:</p>
+    <ol>
+      <li><strong>Assessment</strong>: Inventory tables, row counts, data types. Map Netezza types to Azure SQL/Synapse types (NCHAR → NVARCHAR, BYTEINT → TINYINT, etc.).</li>
+      <li><strong>Schema migration</strong>: Convert DDL. Netezza distribution keys → Synapse hash distribution. Netezza zone maps → Synapse columnstore indexes.</li>
+      <li><strong>Data migration</strong>: ADF with Self-hosted IR. Partition large tables by date/ID for parallel copy. External tables via <code>nzload</code> extract → Blob staging → PolyBase load.</li>
+      <li><strong>Logic migration</strong>: Netezza stored procedures/NZPLSQL → T-SQL or PySpark. U-SQL for intermediate transforms (though now deprecated — would use Databricks today).</li>
+      <li><strong>Validation</strong>: Row count reconciliation, checksum on key columns, sample data comparison, business report validation.</li>
+    </ol>
+    <p><strong>Common challenges</strong>:</p>
+    <ul>
+      <li><strong>Data type mismatches</strong>: Netezza's NUMERIC precision handling differs from Azure SQL. Test boundary values.</li>
+      <li><strong>Performance regression</strong>: Queries optimized for Netezza's zone maps may need different indexing in Synapse (columnstore + statistics).</li>
+      <li><strong>Character encoding</strong>: Netezza Latin-1 vs Azure UTF-8. Special characters may corrupt.</li>
+      <li><strong>Network bandwidth</strong>: For multi-TB migrations, consider Azure Data Box or ExpressRoute.</li>
+    </ul>
+  </div>
+</div>
+
+<h3>Infosys: Star Schema + SSIS</h3>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"You designed Star Schema models on FACT and Dimension tables. Walk me through a real example from your insurance/financial domain."</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>Example: Insurance Claims Star Schema</strong></p>
+    <pre><code>-- Fact table
+CREATE TABLE fact_claims (
+    claim_sk        BIGINT,         -- surrogate key
+    date_sk         INT,            -- FK to dim_date
+    customer_sk     INT,            -- FK to dim_customer (SCD Type 2)
+    policy_sk       INT,            -- FK to dim_policy
+    provider_sk     INT,            -- FK to dim_provider
+    diagnosis_sk    INT,            -- FK to dim_diagnosis
+    claim_amount    DECIMAL(18,2),  -- measure
+    paid_amount     DECIMAL(18,2),  -- measure
+    deductible      DECIMAL(18,2),  -- measure
+    claim_count     INT DEFAULT 1,  -- measure (for aggregation)
+    claim_number    VARCHAR(20)     -- degenerate dimension
+);
+
+-- Dimension: Customer (SCD Type 2)
+CREATE TABLE dim_customer (
+    customer_sk     INT IDENTITY,    -- surrogate key
+    customer_id     VARCHAR(20),     -- natural/business key
+    name            VARCHAR(100),
+    state           VARCHAR(2),
+    segment         VARCHAR(50),
+    effective_date  DATE,
+    end_date        DATE,            -- 9999-12-31 for current
+    is_current      BIT
+);</code></pre>
+    <p><strong>Key design decisions to discuss</strong>:</p>
+    <ul>
+      <li><strong>Grain</strong>: One row per claim (transaction fact). Declare grain first — drives everything else.</li>
+      <li><strong>SCD Type 2 on customer</strong>: Insurance customers change address, plan, status. History matters for analytics.</li>
+      <li><strong>Degenerate dimension</strong>: <code>claim_number</code> stays in fact — no separate dim needed for a unique identifier.</li>
+      <li><strong>Date dimension</strong>: Separate dim_date with fiscal periods, holidays, quarter flags. FK from fact.</li>
+      <li><strong>Conformed dimensions</strong>: dim_date and dim_customer shared across fact_claims, fact_premiums, fact_payments.</li>
+    </ul>
+  </div>
+</div>
+
+<h3>Cross-Cutting: Questions They'll Ask About Gaps</h3>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"Your resume doesn't mention Delta Lake, Unity Catalog, or CI/CD for ADF. Are you familiar with these?"</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>Be honest but show awareness</strong>:</p>
+    <ul>
+      <li><strong>Delta Lake</strong>: "We used Parquet on ADLS at MetLife, but I've worked with Delta Lake features in development — ACID transactions, OPTIMIZE for file compaction, and MERGE for upserts. I understand the value over raw Parquet, especially for streaming pipelines."</li>
+      <li><strong>Unity Catalog</strong>: "Our Databricks environment used workspace-level ACLs. I'm aware that Unity Catalog is the modern governance layer — 3-level namespace, centralized GRANT/REVOKE, automatic lineage. I've studied it for the catalog.schema.table pattern."</li>
+      <li><strong>ADF CI/CD</strong>: "We managed deployments across environments. I understand the Git integration → ARM template → CI/CD pipeline approach with parameterized linked services and separate Key Vaults per environment. I've used PowerShell scripts for deployment at Cognizant."</li>
+    </ul>
+    <div class="info-box tip">
+      <div class="box-title">Strategy</div>
+      <p>Don't bluff — interviewers detect it instantly. Instead: acknowledge, show you understand the concepts, and pivot to related experience you DO have. "I haven't implemented Unity Catalog in production, but I've managed access control in Databricks using workspace ACLs and understand the migration path to Unity Catalog."</p>
+    </div>
+  </div>
+</div>
+
+<div class="toggle-section">
+  <div class="toggle-header" onclick="toggle(this)">
+    <span>"ADLA and U-SQL are retired. How would you approach a project that previously used them?"</span><span class="arrow">&#9654;</span>
+  </div>
+  <div class="toggle-body">
+    <p><strong>Migration path</strong>:</p>
+    <ul>
+      <li><strong>U-SQL queries</strong> → Spark SQL or PySpark on Databricks. U-SQL's SQL+C# → Spark SQL + PySpark UDFs.</li>
+      <li><strong>ADLA compute</strong> → Databricks serverless or Synapse Serverless SQL (for file queries).</li>
+      <li><strong>Data Lake Analytics jobs</strong> → Databricks Workflows or ADF pipelines with Databricks notebook activities.</li>
+      <li><strong>PowerShell deployment</strong> → Databricks Asset Bundles (DABs) or Terraform for infrastructure-as-code.</li>
+    </ul>
+    <p><strong>Key message</strong>: "My ADLA experience gave me strong fundamentals in serverless query-over-files patterns. The modern equivalent is Databricks or Synapse Serverless — same concept, better performance, active support."</p>
+  </div>
+</div>
+
+</section>
+
 </div><!-- /content -->
 
 <script>

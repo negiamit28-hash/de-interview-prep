@@ -168,7 +168,7 @@ a:hover { text-decoration:underline; }
     <div class="stats-bar">
       <div class="stat-card"><div class="num" id="total-q">0</div><div class="label">Questions</div></div>
       <div class="stat-card"><div class="num" id="total-fc">0</div><div class="label">Flashcards</div></div>
-      <div class="stat-card"><div class="num">8</div><div class="label">Topics</div></div>
+      <div class="stat-card"><div class="num">9</div><div class="label">Topics</div></div>
       <div class="stat-card"><div class="num" id="best-score">-</div><div class="label">Best Score</div></div>
     </div>
 
@@ -468,6 +468,68 @@ const questions = [
    opts:["Use sort-merge join for all cases","Use broadcast join -- Spark sends the small table to all executors, eliminating the shuffle on the large table","Convert both tables to Pandas first","Use a subquery instead of a join"],
    answer:1,
    explain:"Broadcast join: `df_large.join(broadcast(df_small), 'key')`. Spark serializes the small DataFrame and sends it to every executor. This eliminates the expensive shuffle of the large table. Default broadcast threshold is 10MB (`spark.sql.autoBroadcastJoinThreshold`). AQE can also auto-switch to broadcast at runtime."},
+
+  // --- SCENARIO-BASED (Resume-Tailored) ---
+  {topic:"Scenarios",difficulty:"hard",
+   q:"At MetLife, you ingest from 20+ sources (JSON, compressed). One source starts sending malformed JSON that breaks your PySpark pipeline. How do you handle this without stopping ingestion from other sources?",
+   opts:["Stop the entire pipeline and fix the source","Use PySpark's PERMISSIVE mode with a corrupt record column, route bad records to a quarantine table, and alert. Other sources continue unaffected.","Switch from JSON to CSV for that source","Ignore the errors and process only valid rows silently"],
+   answer:1,
+   explain:"Use `spark.read.option('mode','PERMISSIVE').option('columnNameOfCorruptRecord','_corrupt')` to capture bad rows. Route them to a quarantine/dead-letter Delta table for investigation. Isolate each source in separate pipeline stages so one failure doesn't cascade. Set up alerting on quarantine table row count."},
+  {topic:"Scenarios",difficulty:"hard",
+   q:"Your ADF pipeline ingests data from Event Hub into ADLS, but you notice duplicate records in the landing zone after Event Hub consumer retries. How do you solve this?",
+   opts:["Disable retries on Event Hub consumer","Implement deduplication in the Silver layer using a MERGE on business key + event timestamp, and enable checkpointing in the Event Hub consumer","Increase Event Hub partition count","Switch from Event Hub to Blob trigger"],
+   answer:1,
+   explain:"Event Hub guarantees at-least-once delivery — duplicates are expected on retries. Fix: (1) Enable checkpointing so consumers track offsets and minimize reprocessing. (2) In Silver layer, use Delta Lake MERGE with a composite key (business_key + event_id) to deduplicate. (3) Add a watermark column to handle late-arriving events."},
+  {topic:"Scenarios",difficulty:"hard",
+   q:"You built a Databricks Autoloader pipeline consuming files from multiple ADLS workspaces at Accenture. Files arrive in bursts (1000s of small files). Performance degrades. What do you do?",
+   opts:["Switch to manual file listing with glob patterns","Enable Autoloader file notification mode (Event Grid), configure maxFilesPerTrigger to throttle, and add a downstream OPTIMIZE step to compact small files into larger Delta files","Increase cluster size indefinitely","Process files once per day instead of streaming"],
+   answer:1,
+   explain:"Autoloader has two modes: directory listing (polls, slow for many files) and file notification (Event Grid, instant). Switch to notification mode. Set `maxFilesPerTrigger` to control batch size. Small files degrade read performance — schedule periodic `OPTIMIZE` on Delta tables to compact them. Consider `autoCompact` and `optimizedWrite` options."},
+  {topic:"Scenarios",difficulty:"hard",
+   q:"Your PySpark job processing insurance claims at MetLife has a join between a large claims table (500M rows) and a small lookup table (10K rows). The job is slow with excessive shuffle. How do you fix it?",
+   opts:["Repartition both tables on the join key","Use broadcast join — broadcast the small lookup table to all executors, eliminating the shuffle of the large claims table","Convert to SQL and run in Azure SQL DB","Add more executor memory"],
+   answer:1,
+   explain:"The small lookup table (10K rows) fits easily in memory. `df_claims.join(broadcast(df_lookup), 'claim_type')` sends the lookup to all executors — no shuffle of the 500M-row table. Also check if `spark.sql.autoBroadcastJoinThreshold` (default 10MB) covers the lookup size; if not, broadcast hint overrides it."},
+  {topic:"Scenarios",difficulty:"hard",
+   q:"At Cognizant, you migrated data from on-prem Netezza to Azure. The fact table has 2 billion rows. How would you approach this migration with minimal downtime?",
+   opts:["Export to CSV and upload via ADF","Use ADF with Self-hosted IR, partition the source by a date/ID column for parallel copy, staged copy via Blob for Synapse, then incremental CDC sync during cutover","Use Azure Data Box to ship physical drives","Migrate everything in a single weekend maintenance window"],
+   answer:1,
+   explain:"For 2B rows: (1) ADF with Self-hosted IR on-prem. (2) Enable partition-aware parallel copy (dynamic range partition on date or ID column). (3) Staged copy to Blob/ADLS first, then PolyBase/COPY into Synapse. (4) After initial full load, set up incremental sync via watermark/CDC for ongoing changes during cutover period. (5) Validate with row counts and checksums before switch."},
+  {topic:"Scenarios",difficulty:"hard",
+   q:"You've implemented Dimensional Modeling for OLAP at MetLife. A business user asks: 'A customer moved from New York to New Jersey. When I query last year's claims, should they show New York or New Jersey?' How do you handle this?",
+   opts:["Always show the latest address (New Jersey)","Implement SCD Type 2: maintain both rows with effective dates. Last year's claims join to the New York row; current claims join to New Jersey row.","Create two separate dimension tables","Ask the user to filter by date manually"],
+   answer:1,
+   explain:"This is the classic SCD Type 2 scenario. Customer dimension gets two rows: {customer_id, 'New York', eff_date=2020-01-01, end_date=2025-06-30, is_current=false} and {customer_id, 'New Jersey', eff_date=2025-07-01, end_date=9999-12-31, is_current=true}. The fact table's surrogate key joins to the correct version based on claim date."},
+  {topic:"Scenarios",difficulty:"hard",
+   q:"Your Confluent Kafka streaming pipeline at Accenture shows increasing consumer lag. Messages are piling up faster than being processed. What's your systematic approach?",
+   opts:["Increase Kafka partition count and add more consumer instances","First diagnose: check consumer throughput, processing time per message, GC pauses, network I/O. Then: optimize processing logic, increase consumers (up to partition count), enable parallel processing per partition, or address back-pressure at the sink.","Delete old messages from the topic","Switch to batch processing"],
+   answer:1,
+   explain:"Systematic approach: (1) Check consumer group lag metrics per partition. (2) Profile processing time — is it CPU, I/O, or sink bottleneck? (3) Optimize transforms (reduce serialization, use efficient formats). (4) Scale consumers up to partition count. (5) If partitions are maxed, increase partition count (carefully — rebalances consumers). (6) Check sink throughput — if ADLS writes are slow, batch writes and use async I/O. (7) Consider backpressure mechanisms."},
+  {topic:"Scenarios",difficulty:"hard",
+   q:"Your ADF pipeline at MetLife reduced ingestion time by 50%. Your manager asks you to further optimize. Current pipeline: Copy Activity → Databricks notebook → SQL stored procedure. What do you analyze?",
+   opts:["Just increase DIU count to maximum","Profile each stage: check Copy Activity DIU utilization and parallelism, Databricks cluster sizing and Spark UI for bottlenecks (shuffle, skew, spill), and SP execution plan. Optimize the slowest stage first.","Rewrite everything in Python","Move to Fabric immediately"],
+   answer:1,
+   explain:"Follow the bottleneck: (1) Copy Activity: check DIU usage vs allocated, enable parallel copy, use staged copy for Synapse sinks. (2) Databricks: check Spark UI — look for skewed stages, excessive shuffle, GC time. Apply broadcast joins, partition tuning, caching. (3) SP: check execution plan for table scans, missing indexes, parameter sniffing. (4) Pipeline-level: check if stages can run in parallel, reduce activity overhead with ForEach + TTL."},
+  {topic:"Scenarios",difficulty:"medium",
+   q:"You're managing deployments across Dev, QA, UAT, and Prod for Databricks and ADF. How do you ensure consistency without manual errors?",
+   opts:["Copy notebooks manually between workspaces","Use Git integration for ADF (ARM templates via CI/CD), Databricks Repos for notebooks, parameterized configs per environment, and automated deployment pipelines with approval gates","Keep all environments on the same workspace","Only test in production"],
+   answer:1,
+   explain:"ADF: Git → ARM templates → CI/CD pipeline with environment-specific parameter files and Key Vault references. Databricks: Repos for version control, dbx or Databricks Asset Bundles for deployment. Use environment variables / config files to switch connection strings, storage paths, and cluster configs. Add approval gates between UAT and Prod."},
+  {topic:"Scenarios",difficulty:"hard",
+   q:"At MetLife, your PySpark job uses multi-level caching (MEMORY_AND_DISK) for a DataFrame used in 3 downstream joins. After adding a 4th join, executors start OOM-ing. What happened and how do you fix it?",
+   opts:["Remove all caching","The cached DataFrame plus the 4th join's shuffle data exceeded executor memory. Fix: profile memory usage, unpersist DataFrames after last use, increase spark.memory.fraction, or switch to DISK_ONLY for large cached datasets. Consider repartitioning to reduce per-partition memory.","Add more driver memory","Convert to Pandas"],
+   answer:1,
+   explain:"Spark's unified memory pool splits between storage (cached data) and execution (shuffle/sort). Caching too many DataFrames squeezes execution memory, causing spill or OOM during shuffles. Fix: (1) `df.unpersist()` after last use. (2) Cache only what's reused. (3) Use DISK_ONLY for large datasets. (4) Tune `spark.memory.storageFraction` (default 0.5). (5) Check if the 4th join introduces data skew amplifying memory pressure."},
+  {topic:"Scenarios",difficulty:"hard",
+   q:"Your ADLS landing zone has data from 20+ sources. A compliance audit asks: 'Who accessed customer PII data in the last 90 days, and can you prove source-to-report lineage?' What's your answer?",
+   opts:["Check ADF pipeline run history only","Combine ADLS diagnostic logs (storage analytics) for access auditing, Unity Catalog lineage for table-to-table tracking, ADF activity runs for pipeline lineage, and ACL reports for permission auditing. For PII: ensure sensitive columns are tagged and access-controlled.","Manually trace each query","Say it's not possible"],
+   answer:1,
+   explain:"Multi-layer approach: (1) ADLS diagnostic logs → Log Analytics for who-read-what-when. (2) Unity Catalog automatic lineage tracks table-to-table dependencies. (3) ADF Monitor provides pipeline-level data flow. (4) Databricks audit logs for notebook/query access. (5) For PII: use column-level ACLs or dynamic views to restrict access, tag sensitive columns in catalog. This is a common audit scenario for insurance companies."},
+  {topic:"Scenarios",difficulty:"medium",
+   q:"You used U-SQL with ADLA at Cognizant. A new project asks you to replicate that functionality. ADLA is now retired. What's the modern replacement?",
+   opts:["Rewrite in SSIS","Use Azure Databricks with PySpark/Spark SQL for transformations, or Synapse serverless SQL for ad-hoc queries over ADLS files. Both replace ADLA's query-over-files capability with better performance and active support.","Use Azure Functions","Stay on ADLA"],
+   answer:1,
+   explain:"ADLA was retired in Feb 2024. Modern replacements: (1) Databricks + PySpark/Spark SQL — most powerful, supports streaming + batch + ML. (2) Synapse Serverless SQL — serverless, query Parquet/Delta/CSV in ADLS directly via OPENROWSET, pay-per-query. (3) For simple transforms, ADF Mapping Data Flows. U-SQL's C# extensibility → PySpark UDFs."},
 ];
 
 // ============================================================
@@ -506,6 +568,17 @@ const flashcards = [
   {topic:"PySpark",q:"Catalyst Optimizer Pipeline",a:"(1) Parse → unresolved plan. (2) Analyze → resolve references. (3) <strong>Rule-based optimization</strong>: predicate pushdown, column pruning, constant folding. (4) <strong>Cost-based optimization</strong>: generate physical plans, pick cheapest. This is why DataFrame API = SQL performance."},
   {topic:"PySpark",q:"Narrow vs Wide Transformations",a:"<strong>Narrow</strong> (no shuffle): map, filter, union. Each partition → one output partition. <strong>Wide</strong> (shuffle required): groupBy, join, repartition. Partitions → multiple outputs. Minimize wide transformations for performance."},
   {topic:"PySpark",q:"Broadcast Join Optimization",a:"<code>df.join(broadcast(small_df), 'key')</code>. Sends small table to all executors, eliminating large table shuffle. Default threshold: 10MB (<code>autoBroadcastJoinThreshold</code>). AQE can auto-switch at runtime."},
+  // Scenario flashcards
+  {topic:"Scenarios",q:"20+ sources, one sends bad JSON — what's your strategy?",a:"Use PySpark <strong>PERMISSIVE mode</strong> with <code>columnNameOfCorruptRecord</code>. Route bad records to a <strong>quarantine Delta table</strong>. Isolate each source in separate pipeline stages. Alert on quarantine count. Other sources continue unaffected."},
+  {topic:"Scenarios",q:"Event Hub duplicates in ADLS landing zone — fix?",a:"Expected behavior (at-least-once). Fix: (1) <strong>Enable checkpointing</strong> in consumer to minimize reprocessing. (2) <strong>Delta MERGE</strong> in Silver layer on composite key (business_key + event_id). (3) Add watermark for late events."},
+  {topic:"Scenarios",q:"Autoloader + 1000s small files = slow. Fix?",a:"Switch to <strong>file notification mode</strong> (Event Grid) instead of directory listing. Set <code>maxFilesPerTrigger</code> to throttle. Run <strong>OPTIMIZE</strong> on Delta tables to compact small files. Enable <code>autoCompact</code> and <code>optimizedWrite</code>."},
+  {topic:"Scenarios",q:"500M rows JOIN 10K lookup — how to optimize?",a:"<strong>Broadcast join</strong>: <code>df_large.join(broadcast(df_small), key)</code>. 10K rows easily fits in memory. Eliminates shuffle of 500M-row table. Check <code>autoBroadcastJoinThreshold</code> (10MB default)."},
+  {topic:"Scenarios",q:"Netezza to Azure migration (2B rows) — approach?",a:"(1) ADF + <strong>Self-hosted IR</strong> on-prem. (2) <strong>Partition-aware parallel copy</strong> on date/ID column. (3) <strong>Staged copy</strong> to Blob, then PolyBase into Synapse. (4) <strong>Incremental CDC sync</strong> during cutover. (5) Validate with row counts + checksums."},
+  {topic:"Scenarios",q:"Customer moved states — Star Schema impact?",a:"<strong>SCD Type 2</strong>: Two rows in customer dim with effective dates. Last year's claims join to old address row, current claims join to new. Requires <strong>surrogate keys</strong> since natural key now has multiple rows."},
+  {topic:"Scenarios",q:"Kafka consumer lag increasing — systematic fix?",a:"(1) Check lag per partition. (2) Profile processing time (CPU/IO/sink?). (3) Optimize transforms. (4) Scale consumers up to partition count. (5) Batch sink writes. (6) If partitions maxed, increase count. (7) Implement backpressure at source."},
+  {topic:"Scenarios",q:"Multi-level cache causing OOM after 4th join?",a:"Cached data + shuffle squeezed execution memory. Fix: (1) <code>unpersist()</code> after last use. (2) Cache only reused DFs. (3) Use <strong>DISK_ONLY</strong> for large datasets. (4) Tune <code>spark.memory.storageFraction</code>. (5) Check for skew in new join."},
+  {topic:"Scenarios",q:"ADLA/U-SQL is retired — modern replacement?",a:"(1) <strong>Databricks + PySpark/Spark SQL</strong> (most powerful). (2) <strong>Synapse Serverless SQL</strong> (query files via OPENROWSET, pay-per-query). (3) ADF Mapping Data Flows for simple transforms. U-SQL C# extensibility → PySpark UDFs."},
+  {topic:"Scenarios",q:"Compliance audit: who accessed PII in last 90 days?",a:"(1) <strong>ADLS diagnostic logs</strong> → Log Analytics for access records. (2) <strong>Unity Catalog lineage</strong> for table-to-table tracking. (3) ADF Monitor for pipeline lineage. (4) <strong>Column-level ACLs</strong> + tagging for PII. (5) Databricks audit logs for query access."},
 ];
 
 // ============================================================
@@ -524,6 +597,7 @@ const topics = [
   {id:'Azure Data Lake Storage',icon:'&#128193;',desc:'ADLS Gen2, HNS, RBAC/ACLs, storage tiers, file sizing, partitioning'},
   {id:'Stream Processing',icon:'&#127754;',desc:'Lambda/Kappa, windowing, watermarks, CDC, Event Hubs, Structured Streaming'},
   {id:'Python',icon:'&#128013;',desc:'Generators, concurrency/GIL, Polars/Pandas, testing, design patterns, uv'},
+  {id:'Scenarios',icon:'&#128188;',desc:'Resume-based scenarios: real-world problems from MetLife, Accenture, Infosys, Cognizant experience'},
 ];
 
 // ============================================================
